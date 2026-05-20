@@ -10,7 +10,7 @@ import Layout from '../layouts/Layout.astro';
       <p class="sub">
         Mueve a <strong>Sungho</strong> con ←/→ (o desliza el dedo) y atrapa
         los corazones. Si aparece <strong>Simba 🐱</strong> es bonus de +3.
-        Las nubes ⚡ te quitan vida. Tres vidas.
+        Los rayos ⚡ te quitan vida. Tres vidas.
       </p>
     </header>
 
@@ -27,7 +27,7 @@ import Layout from '../layouts/Layout.astro';
       <div id="overlay" class="game-overlay">
         <div class="card msg" id="msg-card">
           <h2 id="ov-title">¿List@?</h2>
-          <p id="ov-body">Pulsa "Empezar" o cualquier tecla para arrancar.</p>
+          <p id="ov-body">Pulsa "Empezar" para arrancar.</p>
         </div>
         <div class="card msg romantic-msg" id="romantic-card" hidden>
           <span class="rom-ico">🩵</span>
@@ -524,7 +524,7 @@ import Layout from '../layouts/Layout.astro';
     stage.focus();
   }
 
-  // Cuando "en teoría" perderías todas las vidas, no termina seco —
+  // Cuando "en teoría" perderías todas las vidas, no termina seco,
   // mostramos un mensaje bonito tras un breve respiro.
   function end() {
     running = false;
