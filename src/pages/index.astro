@@ -87,11 +87,25 @@ const base = import.meta.env.BASE_URL;
     </a>
   </section>
 
+  <!-- Tramo largo de scroll con hints intermedios -->
+  <section class="container long-scroll" aria-hidden="true">
+    <p class="hint h1">Sigue bajando…</p>
+    <p class="hint h2">un poquito más 🩵</p>
+    <p class="hint h3">¿confías en mí?</p>
+    <p class="hint h4">ya casi…</p>
+    <p class="hint h5">👀</p>
+    <p class="hint h6">una más…</p>
+    <p class="hint h7">🌟</p>
+  </section>
+
   <section class="container bottom-easter">
     <div id="bottom-card" class="card bottom-card">
       <span class="ico">🌟</span>
       <h3>Lo encontraste — fondo del scroll</h3>
-      <p>Premio por curiosa: aquí te dejo un beso invisible. (Lo sentiste? 😌)</p>
+      <p>Premio por curiosa: aquí te dejo un beso invisible. (¿lo sentiste? 😌)</p>
+      <button id="reopen-photo" class="btn ghost" type="button" style="margin-top:10px;">
+        Volver a ver mi besito 💋
+      </button>
     </div>
   </section>
 
@@ -103,6 +117,26 @@ const base = import.meta.env.BASE_URL;
   <div id="toast" class="toast" role="status" aria-live="polite" hidden>
     <span id="toast-icon">✨</span>
     <span id="toast-text">¡Secreto!</span>
+  </div>
+
+  <!-- Modal de foto para el secreto del scroll -->
+  <div id="photo-modal" class="photo-modal" hidden role="dialog" aria-modal="true" aria-labelledby="photo-caption">
+    <div class="photo-card card">
+      <button class="photo-close" id="photo-close" type="button" aria-label="Cerrar">✕</button>
+      <div class="photo-frame">
+        <img id="photo-img" alt="Foto romántica" />
+        <div id="photo-fallback" class="photo-fallback" hidden>
+          <span class="ico">📷</span>
+          <p>Aún no hay foto aquí.<br/>Pon una en <code>public/photos/N.jpg</code>.</p>
+        </div>
+      </div>
+      <h2 id="photo-caption" class="photo-caption">un besito 💋</h2>
+      <p class="photo-sub">por bajar hasta aquí.</p>
+      <div class="photo-actions">
+        <button id="photo-another" class="btn" type="button">Otra foto 🎲</button>
+        <button id="photo-done" class="btn ghost" type="button">Cerrar</button>
+      </div>
+    </div>
   </div>
 </Layout>
 
@@ -285,7 +319,34 @@ const base = import.meta.env.BASE_URL;
   .feat h3 { font-size: 14px; margin: 0 0 6px; }
   .feat p { font-size: 13px; color: var(--text-soft); margin: 0; }
 
-  .bottom-easter { padding-top: 30vh; padding-bottom: 60px; }
+  /* Long scroll: hints intermedios espaciados */
+  .long-scroll {
+    padding: 80px 0 60px;
+    text-align: center;
+  }
+  .long-scroll .hint {
+    color: var(--text-soft);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    margin: 0 auto;
+    opacity: 0.55;
+  }
+  .long-scroll .h1 { margin-top: 0;     }
+  .long-scroll .h2 { margin-top: 28vh; opacity: 0.5; }
+  .long-scroll .h3 { margin-top: 32vh; opacity: 0.45; }
+  .long-scroll .h4 { margin-top: 36vh; opacity: 0.4; font-size: 13px; }
+  .long-scroll .h5 { margin-top: 40vh; opacity: 0.5; font-size: 28px; }
+  .long-scroll .h6 { margin-top: 30vh; opacity: 0.4; }
+  .long-scroll .h7 { margin-top: 24vh; opacity: 0.65; font-size: 26px; color: var(--gold); }
+  @media (max-width: 720px) {
+    .long-scroll .h2 { margin-top: 32vh; }
+    .long-scroll .h3 { margin-top: 36vh; }
+    .long-scroll .h4 { margin-top: 36vh; }
+    .long-scroll .h5 { margin-top: 40vh; }
+  }
+
+  .bottom-easter { padding-top: 8vh; padding-bottom: 100px; }
   .bottom-card {
     max-width: 520px;
     margin: 0 auto;
@@ -349,17 +410,107 @@ const base = import.meta.env.BASE_URL;
 
   .idle-rain {
     position: fixed;
-    top: -30px;
-    font-size: 22px;
-    color: var(--c-heart);
-    z-index: 50;
+    top: -40px;
+    font-size: 32px;
+    line-height: 1;
+    z-index: 75;
     pointer-events: none;
-    animation: fall 3.5s linear forwards;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    animation: fall 5s linear forwards;
+    will-change: transform, opacity;
   }
   @keyframes fall {
-    0%   { transform: translateY(0) rotate(0); opacity: 0; }
-    10%  { opacity: 1; }
+    0%   { transform: translateY(-40px) rotate(-8deg); opacity: 0; }
+    8%   { opacity: 1; }
+    90%  { opacity: 1; }
     100% { transform: translateY(110vh) rotate(20deg); opacity: 0; }
+  }
+
+  /* ===== Modal foto (scroll secret) ===== */
+  .photo-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 10, 25, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: grid;
+    place-items: center;
+    z-index: 200;
+    padding: 16px;
+    animation: photo-fade 0.3s ease;
+  }
+  .photo-modal[hidden] { display: none !important; }
+  @keyframes photo-fade {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  .photo-card {
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    border-top: 4px solid var(--gold);
+    animation: photo-rise 0.35s ease;
+  }
+  @keyframes photo-rise {
+    from { transform: translateY(20px) scale(0.96); opacity: 0; }
+    to   { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .photo-close {
+    position: absolute;
+    top: 8px; right: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-soft);
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .photo-frame {
+    aspect-ratio: 4 / 3;
+    background: var(--surface-2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    position: relative;
+  }
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .photo-fallback {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--text-soft);
+    padding: 16px;
+  }
+  .photo-fallback[hidden] { display: none; }
+  .photo-fallback .ico { font-size: 36px; display: block; margin-bottom: 8px; }
+  .photo-fallback code {
+    background: var(--surface);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .photo-caption {
+    font-size: 18px;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .photo-sub {
+    color: var(--text-soft);
+    margin: 0 0 18px;
+    font-size: 14px;
+  }
+  .photo-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 </style>
 
@@ -412,14 +563,14 @@ const base = import.meta.env.BASE_URL;
   const hideBubble = (el: HTMLElement | null) => el?.classList.remove('show');
   simbaWrap?.addEventListener('mouseenter', () => {
     showBubble(bubbleSimba);
-    discover('hover-simba', '🐱', 'Secreto 1/6: Simba ronronea al hover.');
+    discover('hover-simba', '🐱', 'Simba ronronea al pasarle el mouse');
   });
   simbaWrap?.addEventListener('mouseleave', () => hideBubble(bubbleSimba));
   simbaWrap?.addEventListener('focus', () => showBubble(bubbleSimba));
   simbaWrap?.addEventListener('blur', () => hideBubble(bubbleSimba));
   simbaWrap?.addEventListener('click', () => {
     showBubble(bubbleSimba);
-    discover('hover-simba', '🐱', 'Secreto 1/6: Simba ronronea al toque.');
+    discover('hover-simba', '🐱', 'Simba ronronea al tocarla');
     setTimeout(() => hideBubble(bubbleSimba), 2200);
   });
 
@@ -428,7 +579,7 @@ const base = import.meta.env.BASE_URL;
   const bubbleWoonhak = document.getElementById('bubble-woonhak');
   woonhakWrap?.addEventListener('dblclick', () => {
     showBubble(bubbleWoonhak);
-    discover('dblclick-woonhak', '🩵', 'Secreto 2/6: Woonhak te quiere mucho.');
+    discover('dblclick-woonhak', '🩵', 'Woonhak te quiere mucho, Sungho');
     setTimeout(() => hideBubble(bubbleWoonhak), 2500);
   });
   let lastTap = 0;
@@ -437,7 +588,7 @@ const base = import.meta.env.BASE_URL;
     if (now - lastTap < 400) {
       e.preventDefault();
       showBubble(bubbleWoonhak);
-      discover('dblclick-woonhak', '🩵', 'Secreto 2/6: Woonhak te quiere mucho.');
+      discover('dblclick-woonhak', '🩵', 'Woonhak te quiere mucho, Sungho');
       setTimeout(() => hideBubble(bubbleWoonhak), 2500);
     }
     lastTap = now;
@@ -456,7 +607,7 @@ const base = import.meta.env.BASE_URL;
     '¿Otra vez? Bien…',
     'Te estoy mirando 👀',
     'Casi casi…',
-    'Secreto 3/6 ✨ Cierra los ojos y piensa en algo lindo — te toca.',
+    '✨ Cierra los ojos y piensa en algo lindo — te toca.',
   ];
   let heartCount = 0;
   heartBtn?.addEventListener('click', () => {
@@ -466,22 +617,24 @@ const base = import.meta.env.BASE_URL;
     heartBtn.classList.add('found');
     const idx = Math.min(heartCount - 1, clickMsgs.length - 1);
     showToast('🩵', clickMsgs[idx]);
-    if (heartCount >= 5) discover('heart5', '🩵', 'Secreto 3/6 desbloqueado.');
+    if (heartCount >= 5) discover('heart5', '🩵', 'Te toca pensar en algo lindo');
   });
 
   // 4) Escribir "amor"
   let buf = '';
   document.addEventListener('keydown', (e) => {
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (e.key && e.key.length === 1) {
       buf = (buf + e.key.toLowerCase()).slice(-8);
       if (buf.includes('amor')) {
-        discover('typeamor', '💛', 'Secreto 4/6: lo escribiste. Yo también, todo el día.');
+        discover('typeamor', '💛', 'Lo escribiste. Yo también, todo el día.');
         buf = '';
       }
     }
   });
 
-  // 5) Idle 10s
+  // 5) Idle 10s — lluvia de corazones BIEN visible
   let idleStart = Date.now();
   let idleFired = false;
   const resetIdle = () => { idleStart = Date.now(); idleFired = false; };
@@ -489,35 +642,98 @@ const base = import.meta.env.BASE_URL;
     window.addEventListener(ev, resetIdle, { passive: true })
   );
   function rainHearts() {
-    for (let i = 0; i < 14; i++) {
+    const symbols = ['🩵', '💛', '⭐', '✨', '🩵', '💛'];
+    for (let i = 0; i < 36; i++) {
       const h = document.createElement('span');
-      h.textContent = ['🩵', '💛', '⭐', '✨'][Math.floor(Math.random() * 4)];
+      h.textContent = symbols[Math.floor(Math.random() * symbols.length)];
       h.className = 'idle-rain';
       h.style.left = Math.random() * 100 + 'vw';
-      h.style.animationDelay = Math.random() * 0.8 + 's';
+      h.style.animationDelay = Math.random() * 2.2 + 's';
+      h.style.animationDuration = 4 + Math.random() * 2.5 + 's';
+      h.style.fontSize = 22 + Math.random() * 22 + 'px';
       document.body.appendChild(h);
-      setTimeout(() => h.remove(), 4500);
+      window.setTimeout(() => h.remove(), 7500);
     }
   }
   window.setInterval(() => {
     if (!idleFired && Date.now() - idleStart > 10000) {
       idleFired = true;
       rainHearts();
-      discover('idle10', '🌙', 'Secreto 5/6: gracias por quedarte un rato conmigo.');
+      discover('idle10', '🌙', 'Gracias por quedarte un rato conmigo');
     }
   }, 500);
 
-  // 6) Scroll al fondo
+  // 6) Scroll al fondo → abre modal de foto
   const bottomCard = document.getElementById('bottom-card');
   const obs = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
         bottomCard?.classList.add('found');
-        discover('scroll-bottom', '🌟', 'Secreto 6/6: ¡Llegaste hasta el fondo!');
+        if (!found.has('scroll-bottom')) {
+          openPhotoModal();
+        }
+        discover('scroll-bottom', '🌟', '¡Llegaste hasta el fondo!');
       }
     });
-  }, { threshold: 0.5 });
+  }, { threshold: 0.45 });
   if (bottomCard) obs.observe(bottomCard);
+
+  // ===== Modal de foto =====
+  const photoModal = document.getElementById('photo-modal') as HTMLElement | null;
+  const photoImg = document.getElementById('photo-img') as HTMLImageElement | null;
+  const photoFallback = document.getElementById('photo-fallback') as HTMLElement | null;
+  const photoClose = document.getElementById('photo-close');
+  const photoDone = document.getElementById('photo-done');
+  const photoAnother = document.getElementById('photo-another');
+  const reopenPhoto = document.getElementById('reopen-photo');
+
+  const base = document.querySelector('base')?.getAttribute('href')
+    ?? new URL(document.baseURI).pathname.replace(/[^/]*$/, '');
+
+  let lastPhoto = -1;
+  function pickPhoto(): number {
+    let n = Math.floor(Math.random() * 6) + 1;
+    if (lastPhoto === n) n = (n % 6) + 1;
+    lastPhoto = n;
+    return n;
+  }
+  function setPhoto(n: number) {
+    if (!photoImg || !photoFallback) return;
+    photoFallback.setAttribute('hidden', '');
+    photoImg.style.display = 'block';
+    photoImg.onload = () => {
+      photoFallback.setAttribute('hidden', '');
+      photoImg.style.display = 'block';
+    };
+    photoImg.onerror = () => {
+      photoImg.style.display = 'none';
+      photoFallback.removeAttribute('hidden');
+    };
+    photoImg.src = `${base}photos/${n}.jpg`;
+  }
+  function openPhotoModal() {
+    if (!photoModal) return;
+    setPhoto(pickPhoto());
+    photoModal.removeAttribute('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+  function closePhotoModal() {
+    if (!photoModal) return;
+    photoModal.setAttribute('hidden', '');
+    document.body.style.overflow = '';
+  }
+  photoClose?.addEventListener('click', closePhotoModal);
+  photoDone?.addEventListener('click', closePhotoModal);
+  photoAnother?.addEventListener('click', () => setPhoto(pickPhoto()));
+  reopenPhoto?.addEventListener('click', openPhotoModal);
+  photoModal?.addEventListener('click', (e) => {
+    if (e.target === photoModal) closePhotoModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && photoModal && !photoModal.hasAttribute('hidden')) {
+      closePhotoModal();
+    }
+  });
 
   // Música
   const btn = document.getElementById('music-btn');
