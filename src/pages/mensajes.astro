@@ -1,88 +1,118 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import PixelChar from '../components/PixelChar.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const secrets = [
+  {
+    key: 'hover-simba',
+    icon: '🐱',
+    title: '1 · Hover sobre Simba',
+    where: 'Escena del homepage (gato naranja del centro).',
+    how: 'Pasa el mouse encima — o dale tap en móvil.',
+    reveal: 'prrrr 🩵 te conoce',
+    tip: 'Mantén el cursor encima un segundo: aparece una burbujita.',
+  },
+  {
+    key: 'dblclick-woonhak',
+    icon: '🩵',
+    title: '2 · Doble click a Woonhak',
+    where: 'Escena del homepage (personaje izquierdo, pelo castaño).',
+    how: 'Doble click con el mouse, o dos taps rápidos en móvil.',
+    reveal: 'te quiero, Sungho 🩵',
+    tip: 'Si no responde, prueba en el centro del sprite.',
+  },
+  {
+    key: 'heart5',
+    icon: '🩵',
+    title: '3 · Click x5 al corazón',
+    where: 'El 🩵 al lado del título "pequeño rincón de internet".',
+    how: 'Clickéalo cinco veces seguidas.',
+    reveal: 'Cierra los ojos y piensa en algo lindo — te toca.',
+    tip: 'Cada click muestra un mensaje distinto antes del final.',
+  },
+  {
+    key: 'typeamor',
+    icon: '💛',
+    title: '4 · Escribe "amor"',
+    where: 'En cualquier parte del homepage.',
+    how: 'Sólo escribe a-m-o-r con el teclado (sin focus en ningún input).',
+    reveal: 'lo escribiste. yo también, todo el día.',
+    tip: 'En móvil este es difícil — disculpa, soy fan del teclado físico.',
+  },
+  {
+    key: 'idle10',
+    icon: '🌙',
+    title: '5 · Quédate quieto 10 segundos',
+    where: 'Homepage. No muevas el mouse, no hagas scroll, no toques.',
+    how: 'Cuenta hasta 10 lentito. Llueven corazones.',
+    reveal: 'gracias por quedarte un rato conmigo.',
+    tip: 'El temporizador se reinicia con cualquier interacción.',
+  },
+  {
+    key: 'scroll-bottom',
+    icon: '🌟',
+    title: '6 · Llega al fondo del scroll',
+    where: 'Baja hasta lo más bajo del homepage.',
+    how: 'Scrollea hasta abajo y se ilumina una tarjeta secreta.',
+    reveal: '¡Lo encontraste!',
+    tip: 'Pasa el feature grid, sigue bajando.',
+  },
+];
 ---
 
-<Layout title="Mensajes escondidos · 🧸">
-  <section class="container secrets">
+<Layout title="Guía de secretos · 🧸">
+  <section class="container guide">
     <header class="head">
-      <p class="eyebrow">🧸 SECRETOS</p>
-      <h1>Detalles <span class="grad">escondidos</span></h1>
+      <p class="eyebrow">🧸 GUÍA DE SECRETOS</p>
+      <h1>Los <span class="grad">6 secretos</span> del homepage</h1>
       <p class="sub">
-        Algunas cosas solo aparecen si pasas el mouse, haces click, presionas
-        una tecla, o esperas en silencio. La página tiene memoria.
+        Aquí están todos los detalles escondidos que hay en la página de
+        inicio, con su pista exacta. Hazlos ahí, no aquí — esta es solo la
+        guía. Tu progreso se guarda en este navegador.
       </p>
+      <div class="meter card">
+        <div class="meter-row">
+          <span class="meter-label">Tu progreso</span>
+          <span class="meter-count"><span id="found-count">0</span> / 6</span>
+        </div>
+        <div class="bar"><span id="bar-fill"></span></div>
+        <div class="meter-actions">
+          <a class="btn" href={base}>← Ir al homepage a buscarlos</a>
+          <button id="reset" class="btn ghost" type="button">Resetear progreso</button>
+        </div>
+      </div>
     </header>
 
     <div class="grid">
-      <!-- 1. HOVER -->
-      <div class="tile card hover-tile">
-        <span class="tag">hover</span>
-        <h3>Pasa el mouse sobre Simba</h3>
-        <div class="art">
-          <PixelChar name="simba" size={120} label="Simba" />
-          <span class="bubble">prrrr ❤ te conoce</span>
-        </div>
-        <p class="hint">(En mobile: tócala y mantén)</p>
-      </div>
-
-      <!-- 2. CLICK -->
-      <div class="tile card">
-        <span class="tag">click</span>
-        <h3>Clickea el corazón <em>x5</em></h3>
-        <button id="heart-btn" class="big-heart" aria-label="Corazón secreto">
-          💙
-        </button>
-        <p id="click-out" class="out">…</p>
-      </div>
-
-      <!-- 3. KONAMI -->
-      <div class="tile card">
-        <span class="tag">teclas</span>
-        <h3>Escribe <code>amor</code> en tu teclado</h3>
-        <p class="hint">No hay input. Solo escribe. Yo aviso.</p>
-        <p id="key-out" class="out">…</p>
-      </div>
-
-      <!-- 4. IDLE -->
-      <div class="tile card">
-        <span class="tag">espera</span>
-        <h3>Quédate quieto 10 segundos</h3>
-        <p class="hint">No muevas el mouse ni la pantalla.</p>
-        <p id="idle-out" class="out">…</p>
-        <div class="progress"><span id="idle-bar"></span></div>
-      </div>
-
-      <!-- 5. SCROLL -->
-      <div class="tile card">
-        <span class="tag">scroll</span>
-        <h3>Llega hasta abajo</h3>
-        <p class="hint">Más abajo… más… casi…</p>
-        <p id="scroll-out" class="out">…</p>
-      </div>
-
-      <!-- 6. DOUBLE CLICK -->
-      <div class="tile card">
-        <span class="tag">doble click</span>
-        <h3>Doble click a Kim</h3>
-        <div class="art clickable" id="kim-tile">
-          <PixelChar name="kim" size={120} label="Kim" />
-          <span id="kim-bubble" class="bubble hidden">te quiero, Sungho 💙</span>
-        </div>
-      </div>
+      {
+        secrets.map((s) => (
+          <article class="tile card" data-key={s.key}>
+            <div class="row1">
+              <span class="ico">{s.icon}</span>
+              <span class="status pending" data-status>Pendiente</span>
+            </div>
+            <h3>{s.title}</h3>
+            <p><strong>Dónde:</strong> {s.where}</p>
+            <p><strong>Cómo:</strong> {s.how}</p>
+            <p class="reveal" data-reveal hidden>
+              <strong>Revelado:</strong> <em>"{s.reveal}"</em>
+            </p>
+            <p class="tip">💡 {s.tip}</p>
+          </article>
+        ))
+      }
     </div>
 
-    <p class="finale" id="finale">— Sigues bajando… aún más… 👀</p>
-    <div class="bottom-secret card" id="bottom-secret">
-      <span class="ico">🌟</span>
-      <h3>Lo encontraste</h3>
-      <p>Premio por curiosa: aquí te dejo un beso invisible. (Lo sentiste? 😌)</p>
-    </div>
+    <p class="footer-note">
+      ¿Aún te faltan? Vuelve al homepage y prueba — la chip abajo a la derecha
+      lleva la cuenta en tiempo real.
+    </p>
   </section>
 </Layout>
 
 <style>
-  .secrets { padding-top: clamp(20px, 5vw, 40px); }
+  .guide { padding-top: clamp(20px, 5vw, 40px); }
   .head { text-align: center; margin-bottom: 28px; }
   .eyebrow {
     display: inline-block;
@@ -101,7 +131,45 @@ import PixelChar from '../components/PixelChar.astro';
     background-clip: text;
     color: transparent;
   }
-  .sub { color: var(--text-soft); max-width: 60ch; margin-inline: auto; }
+  .sub { color: var(--text-soft); max-width: 60ch; margin: 0 auto 22px; }
+
+  .meter {
+    max-width: 560px;
+    margin: 18px auto 0;
+    text-align: left;
+  }
+  .meter-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .meter-label { font-weight: 700; color: var(--text); }
+  .meter-count {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 12px;
+    color: var(--primary);
+  }
+  .bar {
+    height: 8px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .bar #bar-fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    transition: width 0.5s ease;
+  }
+  .meter-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+    justify-content: center;
+  }
 
   .grid {
     display: grid;
@@ -112,192 +180,103 @@ import PixelChar from '../components/PixelChar.astro';
   @media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }
 
   .tile {
-    position: relative;
-    min-height: 240px;
     display: flex;
     flex-direction: column;
     gap: 6px;
+    transition: border-color 0.3s ease, transform 0.2s;
   }
-  .tile h3 { font-size: 14px; margin: 0; }
-  .tile .hint { font-size: 12px; color: var(--text-soft); margin: 0; }
-  .tile .out {
-    margin-top: auto;
-    font-size: 14px;
-    color: var(--primary);
-    min-height: 1.4em;
+  .tile.done {
+    border-color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 6%, var(--surface));
   }
-  .tag {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    font-size: 10px;
-    color: var(--gold);
-    background: color-mix(in srgb, var(--gold) 16%, transparent);
-    padding: 2px 8px;
-    border-radius: 999px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  .art {
-    position: relative;
+  .row1 {
     display: flex;
-    justify-content: center;
-    padding: 8px 0;
+    justify-content: space-between;
+    align-items: center;
   }
-  .bubble {
-    position: absolute;
-    top: -6px;
-    right: 6px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 6px 10px;
-    font-size: 12px;
-    color: var(--text);
-    opacity: 0;
-    transform: translateY(6px);
-    transition: opacity 0.25s ease, transform 0.25s ease;
-    pointer-events: none;
-  }
-  .hover-tile:hover .bubble,
-  .hover-tile:focus-within .bubble { opacity: 1; transform: translateY(0); }
-
-  .big-heart {
-    align-self: center;
-    background: transparent;
-    border: none;
-    font-size: 64px;
-    cursor: pointer;
-    transition: transform 0.15s ease;
-  }
-  .big-heart:hover { transform: scale(1.1); }
-  .big-heart.boom {
-    animation: boom 0.6s ease;
-  }
-  @keyframes boom {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.4) rotate(-8deg); }
-    70%  { transform: scale(1.2) rotate(8deg); }
-    100% { transform: scale(1); }
-  }
-
-  .progress {
-    width: 100%;
-    height: 6px;
-    background: var(--surface-2);
+  .ico { font-size: 28px; }
+  .status {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 4px 10px;
     border-radius: 999px;
-    overflow: hidden;
-    margin-top: 6px;
   }
-  .progress span {
-    display: block;
-    height: 100%;
-    width: 0;
-    background: linear-gradient(90deg, var(--primary), var(--gold));
-    transition: width 0.2s linear;
+  .status.pending {
+    color: var(--text-soft);
+    background: var(--surface-2);
+  }
+  .status.done {
+    color: #fff;
+    background: var(--primary);
+  }
+  .tile h3 { font-size: 14px; margin: 4px 0 4px; }
+  .tile p { font-size: 13px; color: var(--text); margin: 0; }
+  .tile p strong { color: var(--primary); }
+  .tile .reveal { color: var(--text-soft); margin-top: 6px; }
+  .tile .reveal[hidden] { display: none; }
+  .tile .tip {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--text-soft);
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
   }
 
-  .clickable { cursor: pointer; user-select: none; }
-  .bubble.hidden { opacity: 0; }
-  .bubble.show { opacity: 1; transform: translateY(0); }
-
-  .finale {
+  .footer-note {
     text-align: center;
     color: var(--text-soft);
-    margin: 60px 0 14px;
+    margin-top: 28px;
   }
-  .bottom-secret {
-    max-width: 460px;
-    margin: 60vh auto 80px;
-    text-align: center;
-    border: 2px dashed var(--gold);
-  }
-  .bottom-secret .ico { font-size: 36px; display: block; margin-bottom: 6px; }
-  .bottom-secret h3 { margin: 0 0 6px; }
-  .bottom-secret p { color: var(--text-soft); margin: 0; }
 </style>
 
 <script>
-  // 1. Click x5 al corazón
-  const heart = document.getElementById('heart-btn');
-  const clickOut = document.getElementById('click-out');
-  let clicks = 0;
-  const clickMessages = [
-    'Hola 👋',
-    '¿Otra vez? Bien…',
-    'Te estoy mirando 👀',
-    'Casi casi…',
-    '✨ Secreto: cierra los ojos y piensa en algo lindo. Te toca.',
-  ];
-  heart?.addEventListener('click', () => {
-    clicks++;
-    heart.classList.remove('boom');
-    void heart.offsetWidth;
-    heart.classList.add('boom');
-    if (clickOut) clickOut.textContent = clickMessages[Math.min(clicks - 1, clickMessages.length - 1)];
-  });
+  const SECRETS = ['hover-simba', 'dblclick-woonhak', 'heart5', 'typeamor', 'idle10', 'scroll-bottom'];
 
-  // 2. Konami-style: escribe "amor"
-  const keyOut = document.getElementById('key-out');
-  let buf = '';
-  document.addEventListener('keydown', (e) => {
-    if (e.key.length === 1) {
-      buf = (buf + e.key.toLowerCase()).slice(-8);
-      if (buf.includes('amor')) {
-        if (keyOut) keyOut.textContent = 'lo escribiste. yo también, todo el día. 💙';
-        buf = '';
+  function load(): Set<string> {
+    try {
+      return new Set<string>(JSON.parse(localStorage.getItem('secrets-found') || '[]'));
+    } catch {
+      return new Set();
+    }
+  }
+
+  function render() {
+    const found = load();
+    const count = found.size;
+    const countEl = document.getElementById('found-count');
+    const barFill = document.getElementById('bar-fill');
+    if (countEl) countEl.textContent = String(count);
+    if (barFill) barFill.style.width = (count / SECRETS.length) * 100 + '%';
+
+    document.querySelectorAll<HTMLElement>('.tile').forEach((tile) => {
+      const key = tile.dataset.key;
+      const isDone = !!key && found.has(key);
+      tile.classList.toggle('done', isDone);
+      const status = tile.querySelector<HTMLElement>('[data-status]');
+      const reveal = tile.querySelector<HTMLElement>('[data-reveal]');
+      if (status) {
+        status.classList.toggle('done', isDone);
+        status.classList.toggle('pending', !isDone);
+        status.textContent = isDone ? 'Encontrado ✓' : 'Pendiente';
       }
-    }
+      if (reveal) {
+        if (isDone) reveal.removeAttribute('hidden');
+        else reveal.setAttribute('hidden', '');
+      }
+    });
+  }
+
+  render();
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) render();
   });
+  window.addEventListener('storage', render);
 
-  // 3. Espera 10s
-  const idleBar = document.getElementById('idle-bar');
-  const idleOut = document.getElementById('idle-out');
-  let idleStart = Date.now();
-  let idleDone = false;
-  const resetIdle = () => {
-    idleStart = Date.now();
-    idleDone = false;
-    if (idleBar) idleBar.style.width = '0%';
-    if (idleOut) idleOut.textContent = '…';
-  };
-  ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach((ev) =>
-    window.addEventListener(ev, resetIdle, { passive: true })
-  );
-  setInterval(() => {
-    const elapsed = (Date.now() - idleStart) / 1000;
-    const pct = Math.min(100, (elapsed / 10) * 100);
-    if (idleBar) idleBar.style.width = pct + '%';
-    if (elapsed >= 10 && !idleDone) {
-      idleDone = true;
-      if (idleOut) idleOut.textContent = 'gracias por quedarte un rato conmigo. ✨';
-    }
-  }, 200);
-
-  // 4. Scroll al fondo
-  const scrollOut = document.getElementById('scroll-out');
-  const finale = document.getElementById('finale');
-  let scrolled = false;
-  window.addEventListener('scroll', () => {
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const ratio = window.scrollY / Math.max(1, max);
-    if (ratio > 0.92 && !scrolled) {
-      scrolled = true;
-      if (scrollOut) scrollOut.textContent = '¡lo lograste! premio abajo 🌟';
-      if (finale) finale.textContent = '🌟 Casi… mira más abajo.';
-    }
-  });
-
-  // 5. Doble click a Kim
-  const kimTile = document.getElementById('kim-tile');
-  const kimBubble = document.getElementById('kim-bubble');
-  kimTile?.addEventListener('dblclick', () => {
-    kimBubble?.classList.remove('hidden');
-    kimBubble?.classList.add('show');
-    setTimeout(() => {
-      kimBubble?.classList.remove('show');
-      kimBubble?.classList.add('hidden');
-    }, 2500);
+  document.getElementById('reset')?.addEventListener('click', () => {
+    localStorage.removeItem('secrets-found');
+    render();
   });
 </script>

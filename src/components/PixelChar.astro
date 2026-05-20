@@ -1,5 +1,5 @@
 ---
-type CharName = 'kim' | 'sungho' | 'simba';
+type CharName = 'woonhak' | 'sungho' | 'simba';
 
 interface Props {
   name: CharName;
@@ -13,7 +13,7 @@ const { name, size = 96, bobbing = false, label } = Astro.props;
 // Paleta de colores compartida
 const palette: Record<string, string> = {
   '.': 'transparent',
-  // Kim
+  // Woonhak
   H: '#5a3a1f', // brown hair
   h: '#3a230f',
   // pieles
@@ -22,7 +22,7 @@ const palette: Record<string, string> = {
   // ojos/detalles oscuros
   E: '#1c1c1c',
   M: '#c0392b', // boca
-  // Kim ropa
+  // Woonhak ropa
   S: '#2e6fc4', // blue shirt
   s: '#1f4e91',
   P: '#0a1f44', // pants navy
@@ -40,8 +40,8 @@ const palette: Record<string, string> = {
 };
 
 const sprites: Record<CharName, string[]> = {
-  // Kim — alto, pelo castaño, camisa azul (12 x 18)
-  kim: [
+  // Woonhak — alto, pelo castaño, camisa azul (12 x 18)
+  woonhak: [
     '....HHHH....',
     '...HHHHHH...',
     '..HHHHHHHH..',

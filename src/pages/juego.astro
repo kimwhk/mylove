@@ -8,9 +8,9 @@ import Layout from '../layouts/Layout.astro';
       <p class="eyebrow">🎮 MINIJUEGO</p>
       <h1>Atrapa los <span class="grad">corazones</span></h1>
       <p class="sub">
-        Mueve a <strong>Sungho</strong> con ←/→ (o desliza el dedo) y atrapa los
-        corazones. Si aparece <strong>Simba 🐱</strong> es bonus de +3. Las
-        nubes ⚡ te quitan vida. Tres vidas.
+        Mueve a <strong>Sungho</strong> con ←/→ (o desliza el dedo) y atrapa
+        los corazones. Si aparece <strong>Simba 🐱</strong> es bonus de +3.
+        Las nubes ⚡ te quitan vida. Tres vidas.
       </p>
     </header>
 
@@ -26,23 +26,23 @@ import Layout from '../layouts/Layout.astro';
       <div id="overlay" class="game-overlay">
         <div class="card msg">
           <h2 id="ov-title">¿List@?</h2>
-          <p id="ov-body">Click "Empezar" o pulsa cualquier tecla para arrancar.</p>
+          <p id="ov-body">Pulsa "Empezar" o cualquier tecla para arrancar.</p>
         </div>
       </div>
     </div>
 
-    <div class="mobile-ctrls" aria-hidden="false">
-      <button id="left-btn" class="ctrl">◀</button>
-      <button id="right-btn" class="ctrl">▶</button>
+    <div class="mobile-ctrls">
+      <button id="left-btn" class="ctrl" type="button" aria-label="Izquierda">◀</button>
+      <button id="right-btn" class="ctrl" type="button" aria-label="Derecha">▶</button>
     </div>
 
     <details class="card tips">
       <summary>Tips</summary>
       <ul>
-        <li>💙 corazón azul: +1 punto.</li>
+        <li>🩵 corazón celeste: +1 punto.</li>
         <li>💛 corazón dorado: +2 puntos.</li>
         <li>🐱 Simba: +3 puntos (¡rara!).</li>
-        <li>⚡ tormenta: -1 vida.</li>
+        <li>⚡ rayo: -1 vida.</li>
         <li>Gana velocidad cada 10 puntos. ¡Cuidado!</li>
       </ul>
     </details>
@@ -98,8 +98,8 @@ import Layout from '../layouts/Layout.astro';
     border: 1px solid var(--border);
     overflow: hidden;
     box-shadow: var(--shadow);
-    image-rendering: pixelated;
     touch-action: none;
+    user-select: none;
   }
   .stage::after {
     content: '';
@@ -115,29 +115,34 @@ import Layout from '../layouts/Layout.astro';
   }
   .player {
     position: absolute;
-    bottom: 6%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 64px;
-    height: 86px;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 72px;
     z-index: 2;
-    transition: left 0.05s linear;
+    pointer-events: none;
+    will-change: transform;
   }
+  .player svg { width: 100%; height: 100%; image-rendering: pixelated; }
+
   .item {
     position: absolute;
+    left: 0;
     top: 0;
-    font-size: 28px;
+    display: grid;
+    place-items: center;
     z-index: 1;
     line-height: 1;
     user-select: none;
+    pointer-events: none;
     filter: drop-shadow(0 2px 0 rgba(0,0,0,0.15));
+    font-size: 26px;
+    will-change: transform;
   }
-  .item.pop {
-    animation: pop 0.25s ease forwards;
-  }
+  .item.pop { animation: pop 0.25s ease forwards; }
   @keyframes pop {
-    0%   { transform: scale(1); opacity: 1; }
-    100% { transform: scale(1.6); opacity: 0; }
+    0%   { opacity: 1; }
+    100% { opacity: 0; }
   }
 
   .game-overlay {
@@ -166,24 +171,22 @@ import Layout from '../layouts/Layout.astro';
     margin: 14px 0;
   }
   .ctrl {
-    width: 64px; height: 64px;
+    width: 72px; height: 72px;
     border-radius: 16px;
     background: var(--surface);
     border: 1px solid var(--border);
     color: var(--text);
-    font-size: 22px;
+    font-size: 26px;
     cursor: pointer;
     box-shadow: var(--shadow);
+    touch-action: manipulation;
   }
   .ctrl:active { transform: translateY(2px); }
   @media (hover: none) and (pointer: coarse) {
     .mobile-ctrls { display: flex; }
   }
 
-  .tips {
-    margin: 22px auto 0;
-    max-width: 520px;
-  }
+  .tips { margin: 22px auto 0; max-width: 520px; }
   .tips summary {
     cursor: pointer;
     font-weight: 700;
@@ -193,7 +196,7 @@ import Layout from '../layouts/Layout.astro';
 </style>
 
 <script>
-  // Render Sungho como SVG inline (mismo sprite que PixelChar)
+  // ===== Sprite de Sungho como SVG inline =====
   const sunghoSprite = [
     '....YYYY....',
     '...YYYYYY...',
@@ -229,30 +232,82 @@ import Layout from '../layouts/Layout.astro';
         }
       }
     }
-    return `<svg viewBox="0 0 ${cols} ${rows}" shape-rendering="crispEdges" width="100%" height="100%">${rects}</svg>`;
+    return `<svg viewBox="0 0 ${cols} ${rows}" shape-rendering="crispEdges" preserveAspectRatio="xMidYMid meet">${rects}</svg>`;
   }
 
-  const playerEl = document.getElementById('player')!;
-  playerEl.innerHTML = spriteSvg(sunghoSprite);
-
+  // ===== Estado =====
   const stage = document.getElementById('stage') as HTMLElement;
-  const scoreEl = document.getElementById('score')!;
-  const bestEl = document.getElementById('best')!;
-  const livesEl = document.getElementById('lives')!;
+  const player = document.getElementById('player') as HTMLElement;
+  const scoreEl = document.getElementById('score') as HTMLElement;
+  const bestEl = document.getElementById('best') as HTMLElement;
+  const livesEl = document.getElementById('lives') as HTMLElement;
   const startBtn = document.getElementById('start') as HTMLButtonElement;
   const overlay = document.getElementById('overlay') as HTMLElement;
-  const ovTitle = document.getElementById('ov-title')!;
-  const ovBody = document.getElementById('ov-body')!;
+  const ovTitle = document.getElementById('ov-title') as HTMLElement;
+  const ovBody = document.getElementById('ov-body') as HTMLElement;
 
-  type Item = { el: HTMLElement; x: number; y: number; vy: number; kind: 'blue' | 'gold' | 'simba' | 'bolt' };
+  player.innerHTML = spriteSvg(sunghoSprite);
 
+  let stageW = 0;
+  let stageH = 0;
+  const PLAYER_W = 56;
+  const PLAYER_H = 72;
+  const PLAYER_BOTTOM = 18;
+  const ITEM_SIZE = 36;
+
+  let playerX = 0;
+
+  function placePlayer() {
+    if (!stageW) return;
+    const cx = Math.min(stageW - PLAYER_W / 2, Math.max(PLAYER_W / 2, playerX || stageW / 2));
+    playerX = cx;
+    const left = cx - PLAYER_W / 2;
+    const top = stageH - PLAYER_H - PLAYER_BOTTOM;
+    player.style.transform = `translate(${left}px, ${top}px)`;
+  }
+
+  function syncStageSize() {
+    const r = stage.getBoundingClientRect();
+    stageW = r.width;
+    stageH = r.height;
+    placePlayer();
+  }
+  new ResizeObserver(syncStageSize).observe(stage);
+
+  // ===== Items =====
+  type Kind = 'sky' | 'gold' | 'simba' | 'bolt';
+  type Item = { el: HTMLElement; x: number; y: number; vy: number; kind: Kind };
   let items: Item[] = [];
-  let playerX = 0.5; // 0..1
+
+  function emojiFor(k: Kind): string {
+    return k === 'sky' ? '🩵' : k === 'gold' ? '💛' : k === 'simba' ? '🐱' : '⚡';
+  }
+
+  function spawn() {
+    if (!stageW) return;
+    const r = Math.random();
+    const kind: Kind =
+      r < 0.55 ? 'sky' : r < 0.78 ? 'gold' : r < 0.86 ? 'simba' : 'bolt';
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.textContent = emojiFor(kind);
+    el.style.width = ITEM_SIZE + 'px';
+    el.style.height = ITEM_SIZE + 'px';
+    stage.appendChild(el);
+    const margin = ITEM_SIZE / 2 + 4;
+    const x = margin + Math.random() * (stageW - margin * 2);
+    const y = -ITEM_SIZE;
+    el.style.transform = `translate(${x - ITEM_SIZE / 2}px, ${y}px)`;
+    items.push({ el, x, y, vy: baseSpeed * (0.8 + Math.random() * 0.5), kind });
+  }
+
+  // ===== Loop =====
   let score = 0;
   let lives = 3;
   let running = false;
-  let lastSpawn = 0;
-  let baseSpeed = 80; // px/s
+  let baseSpeed = 130;
+  let spawnTimer = 0;
+  let nextSpawnIn = 0.7;
   let raf = 0;
   let lastT = 0;
 
@@ -271,83 +326,11 @@ import Layout from '../layouts/Layout.astro';
     items = [];
     score = 0;
     lives = 3;
-    baseSpeed = 80;
+    baseSpeed = 130;
+    spawnTimer = 0;
+    nextSpawnIn = 0.7;
     scoreEl.textContent = '0';
     livesEl.textContent = '❤❤❤';
-  }
-
-  function spawn() {
-    const r = Math.random();
-    const kind: Item['kind'] =
-      r < 0.55 ? 'blue' : r < 0.78 ? 'gold' : r < 0.86 ? 'simba' : 'bolt';
-    const emoji =
-      kind === 'blue' ? '💙' : kind === 'gold' ? '💛' : kind === 'simba' ? '🐱' : '⚡';
-    const el = document.createElement('div');
-    el.className = 'item';
-    el.textContent = emoji;
-    el.style.left = Math.random() * 90 + '%';
-    stage.appendChild(el);
-    items.push({ el, x: parseFloat(el.style.left), y: -10, vy: baseSpeed * (0.8 + Math.random() * 0.5), kind });
-  }
-
-  function loop(t: number) {
-    if (!running) return;
-    if (!lastT) lastT = t;
-    const dt = (t - lastT) / 1000;
-    lastT = t;
-    lastSpawn += dt;
-    if (lastSpawn > 0.7 + Math.random() * 0.6) {
-      lastSpawn = 0;
-      spawn();
-    }
-
-    const sw = stage.clientWidth;
-    const sh = stage.clientHeight;
-    const playerW = playerEl.clientWidth;
-    const playerLeft = playerX * sw - playerW / 2;
-    playerEl.style.left = `calc(${playerX * 100}% )`;
-
-    for (const it of items) {
-      it.y += it.vy * dt;
-      it.el.style.top = it.y + 'px';
-
-      // collision: player area
-      const itemRect = { x: (it.x / 100) * sw, y: it.y, w: 30, h: 30 };
-      const playerRect = { x: playerLeft, y: sh * 0.86, w: playerW, h: 90 };
-      const hit =
-        itemRect.x < playerRect.x + playerRect.w &&
-        itemRect.x + itemRect.w > playerRect.x &&
-        itemRect.y < playerRect.y + playerRect.h &&
-        itemRect.y + itemRect.h > playerRect.y;
-
-      if (hit) {
-        if (it.kind === 'bolt') {
-          lives--;
-          livesEl.textContent = '❤'.repeat(Math.max(0, lives)) + '·'.repeat(3 - Math.max(0, lives));
-          flash('#ff5577');
-        } else {
-          const gain = it.kind === 'blue' ? 1 : it.kind === 'gold' ? 2 : 3;
-          score += gain;
-          scoreEl.textContent = String(score);
-          if (score % 10 === 0) baseSpeed += 25;
-          flash(it.kind === 'gold' ? '#ffd166' : it.kind === 'simba' ? '#ff8c1a' : '#6ec1ff');
-        }
-        it.el.classList.add('pop');
-        setTimeout(() => it.el.remove(), 200);
-        it.y = sh + 999;
-      }
-
-      if (it.y > sh + 40) {
-        it.el.remove();
-      }
-    }
-    items = items.filter((i) => i.y < sh + 40);
-
-    if (lives <= 0) {
-      end();
-    } else {
-      raf = requestAnimationFrame(loop);
-    }
   }
 
   function flash(color: string) {
@@ -357,8 +340,81 @@ import Layout from '../layouts/Layout.astro';
     );
   }
 
+  function rectsCollide(
+    ax: number, ay: number, aw: number, ah: number,
+    bx: number, by: number, bw: number, bh: number,
+  ): boolean {
+    return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+  }
+
+  function loop(t: number) {
+    if (!running) return;
+    if (!lastT) lastT = t;
+    const dt = Math.min(0.05, (t - lastT) / 1000);
+    lastT = t;
+
+    spawnTimer += dt;
+    if (spawnTimer > nextSpawnIn) {
+      spawnTimer = 0;
+      nextSpawnIn = 0.55 + Math.random() * 0.55;
+      spawn();
+    }
+
+    const playerLeft = playerX - PLAYER_W / 2;
+    const playerTop = stageH - PLAYER_H - PLAYER_BOTTOM;
+    const hbInset = 10;
+    const pX = playerLeft + hbInset;
+    const pY = playerTop + hbInset;
+    const pW = PLAYER_W - hbInset * 2;
+    const pH = PLAYER_H - hbInset;
+
+    for (const it of items) {
+      it.y += it.vy * dt;
+      it.el.style.transform = `translate(${it.x - ITEM_SIZE / 2}px, ${it.y}px)`;
+
+      const ix = it.x - ITEM_SIZE / 2;
+      const iy = it.y;
+      const hit = rectsCollide(ix, iy, ITEM_SIZE, ITEM_SIZE, pX, pY, pW, pH);
+
+      if (hit) {
+        if (it.kind === 'bolt') {
+          lives = Math.max(0, lives - 1);
+          livesEl.textContent = '❤'.repeat(lives) + '·'.repeat(3 - lives);
+          flash('#ff5577');
+        } else {
+          const gain = it.kind === 'sky' ? 1 : it.kind === 'gold' ? 2 : 3;
+          score += gain;
+          scoreEl.textContent = String(score);
+          if (score > 0 && score % 10 === 0) baseSpeed += 18;
+          flash(it.kind === 'gold' ? '#ffd166' : it.kind === 'simba' ? '#ff8c1a' : '#6ec1ff');
+        }
+        it.el.classList.add('pop');
+        const dead = it.el;
+        setTimeout(() => dead.remove(), 220);
+        it.y = stageH + 9999;
+      }
+    }
+
+    items = items.filter((it) => {
+      if (it.y > stageH + 40) {
+        it.el.remove();
+        return false;
+      }
+      return it.y < stageH + 9000;
+    });
+
+    if (lives <= 0) {
+      end();
+    } else {
+      raf = requestAnimationFrame(loop);
+    }
+  }
+
   function start() {
+    syncStageSize();
     reset();
+    playerX = stageW / 2;
+    placePlayer();
     running = true;
     lastT = 0;
     hideOverlay();
@@ -373,53 +429,85 @@ import Layout from '../layouts/Layout.astro';
     if (score > prev) {
       localStorage.setItem('best-score', String(score));
       bestEl.textContent = String(score);
-      setOverlay('¡Nuevo récord! 🏆', `${score} puntos. Press start para otra ronda.`);
+      setOverlay('¡Nuevo récord! 🏆', `${score} puntos. Pulsa Empezar para otra ronda.`);
     } else {
-      setOverlay('Fin del juego', `Hiciste ${score} pts. Récord: ${prev}.`);
+      setOverlay('Fin del juego', `Hiciste ${score} pts. Récord: ${prev}. ¡Otra!`);
     }
   }
 
   startBtn.addEventListener('click', start);
 
-  // Controles
+  // ===== Movimiento: teclado =====
   const keys: Record<string, boolean> = {};
   window.addEventListener('keydown', (e) => {
-    keys[e.key] = true;
+    if (['ArrowLeft', 'ArrowRight', 'a', 'A', 'd', 'D'].includes(e.key)) {
+      keys[e.key] = true;
+      e.preventDefault();
+    }
     if (!running && (e.key === 'Enter' || e.key === ' ')) {
       start();
     }
   });
   window.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
-  setInterval(() => {
-    if (!running) return;
-    if (keys['ArrowLeft'] || keys['a'] || keys['A']) playerX = Math.max(0.05, playerX - 0.025);
-    if (keys['ArrowRight'] || keys['d'] || keys['D']) playerX = Math.min(0.95, playerX + 0.025);
-  }, 16);
-
-  // Touch / pointer drag en el stage
-  let dragging = false;
-  const setFromPointer = (e: PointerEvent) => {
-    const rect = stage.getBoundingClientRect();
-    playerX = Math.min(0.95, Math.max(0.05, (e.clientX - rect.left) / rect.width));
-  };
-  stage.addEventListener('pointerdown', (e) => { dragging = true; setFromPointer(e); });
-  stage.addEventListener('pointermove', (e) => { if (dragging) setFromPointer(e); });
-  window.addEventListener('pointerup', () => { dragging = false; });
-
-  // Botones móviles
-  const leftBtn = document.getElementById('left-btn');
-  const rightBtn = document.getElementById('right-btn');
+  // ===== Movimiento: botones móviles =====
+  const leftBtn = document.getElementById('left-btn') as HTMLElement;
+  const rightBtn = document.getElementById('right-btn') as HTMLElement;
   let leftHeld = false, rightHeld = false;
-  leftBtn?.addEventListener('pointerdown', () => (leftHeld = true));
-  rightBtn?.addEventListener('pointerdown', () => (rightHeld = true));
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach((ev) => {
-    leftBtn?.addEventListener(ev, () => (leftHeld = false));
-    rightBtn?.addEventListener(ev, () => (rightHeld = false));
+  const hold = (btn: HTMLElement, set: (v: boolean) => void) => {
+    const on = (e: Event) => { e.preventDefault(); set(true); };
+    const off = (e: Event) => { e.preventDefault(); set(false); };
+    btn.addEventListener('pointerdown', on);
+    btn.addEventListener('pointerup', off);
+    btn.addEventListener('pointercancel', off);
+    btn.addEventListener('pointerleave', off);
+    btn.addEventListener('touchstart', on, { passive: false });
+    btn.addEventListener('touchend', off);
+  };
+  hold(leftBtn, (v) => (leftHeld = v));
+  hold(rightBtn, (v) => (rightHeld = v));
+
+  // ===== Movimiento: drag en stage =====
+  let dragging = false;
+  const setFromPointer = (clientX: number) => {
+    if (!stageW) return;
+    const rect = stage.getBoundingClientRect();
+    const relX = clientX - rect.left;
+    playerX = Math.min(stageW - PLAYER_W / 2, Math.max(PLAYER_W / 2, relX));
+    placePlayer();
+  };
+  stage.addEventListener('pointerdown', (e) => {
+    dragging = true;
+    stage.setPointerCapture(e.pointerId);
+    setFromPointer(e.clientX);
   });
-  setInterval(() => {
-    if (!running) return;
-    if (leftHeld) playerX = Math.max(0.05, playerX - 0.025);
-    if (rightHeld) playerX = Math.min(0.95, playerX + 0.025);
-  }, 16);
+  stage.addEventListener('pointermove', (e) => {
+    if (dragging) setFromPointer(e.clientX);
+  });
+  stage.addEventListener('pointerup', () => { dragging = false; });
+  stage.addEventListener('pointercancel', () => { dragging = false; });
+
+  // Loop de movimiento (independiente)
+  const PLAYER_SPEED = 380;
+  let mvLast = performance.now();
+  function moveTick(now: number) {
+    const dt = Math.min(0.05, (now - mvLast) / 1000);
+    mvLast = now;
+    if (running && stageW) {
+      let dx = 0;
+      if (keys['ArrowLeft'] || keys['a'] || keys['A'] || leftHeld) dx -= 1;
+      if (keys['ArrowRight'] || keys['d'] || keys['D'] || rightHeld) dx += 1;
+      if (dx !== 0) {
+        playerX = Math.min(stageW - PLAYER_W / 2, Math.max(PLAYER_W / 2, playerX + dx * PLAYER_SPEED * dt));
+        placePlayer();
+      }
+    }
+    requestAnimationFrame(moveTick);
+  }
+  requestAnimationFrame(moveTick);
+
+  // Inicializar
+  syncStageSize();
+  playerX = stageW / 2;
+  placePlayer();
 </script>

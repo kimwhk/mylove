@@ -1,11 +1,11 @@
-# mylove · 6 meses Kim & Sungho 💙✨
+# mylove · 6 meses Woonhak & Sungho 🩵✨
 
 Sitio web estático en Astro para celebrar los 6 meses. Pensado para
 desplegarse en GitHub Pages.
 
 ## Lo que incluye
 
-- 🌸 Pantalla de bienvenida con escena pixel-art (Kim, Sungho, Simba).
+- 🌸 Pantalla de bienvenida con escena pixel-art (Woonhak, Sungho, Simba).
 - ⏳ Contador en vivo desde **20-11-2025**.
 - 💌 Botones sorpresa con mensajes aleatorios.
 - 🧸 Mensajes escondidos (hover, click, teclado, idle, scroll).
@@ -40,7 +40,7 @@ npm run preview  # sirve /dist
    ```bash
    git init
    git add .
-   git commit -m "Initial commit · 6 meses 💙"
+   git commit -m "Initial commit · 6 meses 🩵"
    git branch -M main
    git remote add origin https://github.com/kimwhk/mylove.git
    git push -u origin main
@@ -69,4 +69,4 @@ src/
 public/           favicon.svg (+ tus fotos/música)
 ```
 
-— Hecho con 💙 + ⭐.
+— Hecho con 🩵 + ⭐.

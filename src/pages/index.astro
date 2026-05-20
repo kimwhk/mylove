@@ -5,19 +5,22 @@ import PixelChar from '../components/PixelChar.astro';
 const base = import.meta.env.BASE_URL;
 ---
 
-<Layout title="Bienvenida a nuestro rincón 💙">
+<Layout title="Bienvenida a nuestro rincón 🩵">
   <section class="hero container">
     <div class="hero-text">
       <p class="eyebrow">06 MESES · 20·11·2025 → 20·05·2026</p>
       <h1>
         Bienvenida a nuestro
         <span class="grad">pequeño rincón</span>
-        de internet <span class="heart-pop">❤️</span>
+        de internet
+        <button id="heart-click5" class="heart-btn" type="button" aria-label="Corazón secreto">
+          <span class="heart-pop">🩵</span>
+        </button>
       </h1>
       <p class="lede">
         Un lugar hecho a pixel y a corazón para celebrar los seis meses más
         suaves del mundo. Pasea, presiona botones, atrapa corazones, y
-        encuentra los detalles escondidos.
+        encuentra los detalles escondidos. <em>(Hay sorpresas por toda la página.)</em>
       </p>
 
       <div class="cta-row">
@@ -30,7 +33,6 @@ const base = import.meta.env.BASE_URL;
         🎵 Música opcional
       </button>
       <audio id="music" loop preload="none">
-        <!-- Sin pista por defecto; suelta un .mp3 en /public/music.mp3 si quieres -->
         <source src={`${base}music.mp3`} type="audio/mpeg" />
       </audio>
     </div>
@@ -38,15 +40,27 @@ const base = import.meta.env.BASE_URL;
     <div class="hero-art card">
       <div class="scene">
         <div class="ground"></div>
-        <div class="char left"><PixelChar name="kim" size={120} bobbing label="Kim" /></div>
-        <div class="char center"><PixelChar name="simba" size={140} bobbing label="Simba" /></div>
-        <div class="char right"><PixelChar name="sungho" size={120} bobbing label="Sungho" /></div>
+        <button class="char left" id="woonhak-wrap" type="button" aria-label="Woonhak (doble click)">
+          <PixelChar name="woonhak" size={120} bobbing label="Woonhak" />
+        </button>
+        <button class="char center" id="simba-wrap" type="button" aria-label="Simba (pasa el mouse)">
+          <PixelChar name="simba" size={140} bobbing label="Simba" />
+        </button>
+        <button class="char right" id="sungho-wrap" type="button" aria-label="Sungho">
+          <PixelChar name="sungho" size={120} bobbing label="Sungho" />
+        </button>
         <span class="cloud c1">☁️</span>
         <span class="cloud c2">☁️</span>
         <span class="cloud c3">⭐</span>
         <span class="cloud c4">⭐</span>
+
+        <span id="bubble-simba" class="scene-bubble bubble-center">prrrr 🩵 te conoce</span>
+        <span id="bubble-woonhak" class="scene-bubble bubble-left">te quiero, Sungho 🩵</span>
+        <span id="bubble-sungho" class="scene-bubble bubble-right">mi favorito 💛</span>
       </div>
-      <p class="caption">Nuestros tres protagonistas — Kim, Simba &amp; Sungho.</p>
+      <p class="caption">
+        Pasa el mouse sobre Simba · doble-click a Woonhak · y… hay más.
+      </p>
     </div>
   </section>
 
@@ -63,15 +77,33 @@ const base = import.meta.env.BASE_URL;
     </a>
     <a class="feat card" href={`${base}mensajes/`}>
       <div class="ico">🧸</div>
-      <h3>Mensajes escondidos</h3>
-      <p>Detalles mágicos que aparecen al hover, click o teclear.</p>
+      <h3>Guía de secretos</h3>
+      <p>¿Encontraste todos? Aquí te decimos cuáles hay y dónde.</p>
     </a>
     <a class="feat card" href={`${base}juego/`}>
       <div class="ico">🎮</div>
       <h3>Mini juego pixel</h3>
-      <p>Atrapa corazones con Sungho. Cuidado con los cachivaches.</p>
+      <p>Atrapa corazones con Sungho. Cuidado con los rayos.</p>
     </a>
   </section>
+
+  <section class="container bottom-easter">
+    <div id="bottom-card" class="card bottom-card">
+      <span class="ico">🌟</span>
+      <h3>Lo encontraste — fondo del scroll</h3>
+      <p>Premio por curiosa: aquí te dejo un beso invisible. (Lo sentiste? 😌)</p>
+    </div>
+  </section>
+
+  <div id="progress-chip" class="progress-chip" aria-live="polite" title="Secretos encontrados">
+    <span aria-hidden="true">🧸</span>
+    <span id="progress-text">0 / 6</span>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <span id="toast-icon">✨</span>
+    <span id="toast-text">¡Secreto!</span>
+  </div>
 </Layout>
 
 <style>
@@ -103,10 +135,18 @@ const base = import.meta.env.BASE_URL;
     background-clip: text;
     color: transparent;
   }
+  .heart-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0 4px;
+    vertical-align: -2px;
+  }
   .heart-pop {
     display: inline-block;
     animation: pop 1.4s ease-in-out infinite;
   }
+  .heart-btn.found .heart-pop { animation: pop 0.4s ease-in-out 4; }
   @keyframes pop {
     0%, 100% { transform: scale(1); }
     50%      { transform: scale(1.18); }
@@ -115,6 +155,11 @@ const base = import.meta.env.BASE_URL;
     font-size: clamp(15px, 1.6vw, 17px);
     color: var(--text-soft);
     max-width: 52ch;
+  }
+  .lede em {
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 600;
   }
   .cta-row {
     display: flex;
@@ -140,7 +185,6 @@ const base = import.meta.env.BASE_URL;
     border-color: var(--gold);
   }
 
-  /* Escena pixel */
   .hero-art { padding: 18px; }
   .scene {
     position: relative;
@@ -166,7 +210,12 @@ const base = import.meta.env.BASE_URL;
   .char {
     position: absolute;
     bottom: 14%;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
   }
+  .char:focus-visible { outline: 3px solid var(--gold); border-radius: 8px; }
   .char.left   { left: 6%; }
   .char.center { left: 50%; transform: translateX(-50%); bottom: 10%; }
   .char.right  { right: 6%; }
@@ -192,19 +241,36 @@ const base = import.meta.env.BASE_URL;
     margin: 12px 0 0;
   }
 
-  /* Features */
+  .scene-bubble {
+    position: absolute;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text);
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+    z-index: 3;
+    white-space: nowrap;
+  }
+  .scene-bubble.show { opacity: 1; transform: translateY(0); }
+  .bubble-center { top: 6%; left: 50%; transform: translate(-50%, 8px); }
+  .bubble-center.show { transform: translate(-50%, 0); }
+  .bubble-left   { top: 10%; left: 8%; }
+  .bubble-right  { top: 10%; right: 8%; }
+
   .features {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 14px;
     margin: clamp(20px, 4vw, 30px) auto;
   }
-  @media (max-width: 860px) {
-    .features { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 480px) {
-    .features { grid-template-columns: 1fr; }
-  }
+  @media (max-width: 860px) { .features { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .features { grid-template-columns: 1fr; } }
   .feat {
     color: var(--text);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -215,22 +281,245 @@ const base = import.meta.env.BASE_URL;
     box-shadow: 0 12px 36px rgba(46, 111, 196, 0.18);
     text-decoration: none;
   }
-  .feat .ico {
-    font-size: 28px;
-    margin-bottom: 8px;
+  .feat .ico { font-size: 28px; margin-bottom: 8px; }
+  .feat h3 { font-size: 14px; margin: 0 0 6px; }
+  .feat p { font-size: 13px; color: var(--text-soft); margin: 0; }
+
+  .bottom-easter { padding-top: 30vh; padding-bottom: 60px; }
+  .bottom-card {
+    max-width: 520px;
+    margin: 0 auto;
+    text-align: center;
+    border: 2px dashed var(--gold);
+    opacity: 0.45;
+    transform: translateY(10px) scale(0.98);
+    transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.4s;
   }
-  .feat h3 {
+  .bottom-card.found {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    border-color: var(--primary);
+  }
+  .bottom-card .ico { font-size: 36px; display: block; margin-bottom: 6px; }
+  .bottom-card h3 { margin: 0 0 6px; }
+  .bottom-card p { color: var(--text-soft); margin: 0; }
+
+  .progress-chip {
+    position: fixed;
+    right: 14px;
+    bottom: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    color: var(--text);
+    z-index: 60;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 80px;
+    transform: translate(-50%, 20px);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: 14px;
+    color: var(--text);
     font-size: 14px;
-    margin: 0 0 6px;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 80;
+    max-width: 92vw;
   }
-  .feat p {
-    font-size: 13px;
-    color: var(--text-soft);
-    margin: 0;
+  .toast[hidden] { display: none !important; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+  .toast #toast-icon { font-size: 20px; }
+
+  .idle-rain {
+    position: fixed;
+    top: -30px;
+    font-size: 22px;
+    color: var(--c-heart);
+    z-index: 50;
+    pointer-events: none;
+    animation: fall 3.5s linear forwards;
+  }
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0); opacity: 0; }
+    10%  { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(20deg); opacity: 0; }
   }
 </style>
 
 <script>
+  const SECRETS = ['hover-simba', 'dblclick-woonhak', 'heart5', 'typeamor', 'idle10', 'scroll-bottom'];
+  const found = new Set<string>(
+    (() => {
+      try { return JSON.parse(localStorage.getItem('secrets-found') || '[]'); }
+      catch { return []; }
+    })()
+  );
+  const progressText = document.getElementById('progress-text');
+  const updateProgress = () => {
+    if (progressText) progressText.textContent = `${found.size} / ${SECRETS.length}`;
+    localStorage.setItem('secrets-found', JSON.stringify([...found]));
+  };
+  updateProgress();
+
+  const toast = document.getElementById('toast') as HTMLElement | null;
+  const toastText = document.getElementById('toast-text');
+  const toastIcon = document.getElementById('toast-icon');
+  let toastTimer: number | null = null;
+  function showToast(icon: string, text: string) {
+    if (!toast || !toastText || !toastIcon) return;
+    toastIcon.textContent = icon;
+    toastText.textContent = text;
+    toast.removeAttribute('hidden');
+    requestAnimationFrame(() => toast.classList.add('show'));
+    if (toastTimer) window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => {
+      toast.classList.remove('show');
+      window.setTimeout(() => toast.setAttribute('hidden', ''), 350);
+    }, 3200);
+  }
+
+  function discover(key: string, icon: string, text: string) {
+    if (found.has(key)) return;
+    found.add(key);
+    updateProgress();
+    showToast(icon, text);
+    if (found.size === SECRETS.length) {
+      window.setTimeout(() => showToast('🏆', '¡Encontraste todos los secretos! Te amo.'), 3500);
+    }
+  }
+
+  // 1) Hover Simba
+  const simbaWrap = document.getElementById('simba-wrap');
+  const bubbleSimba = document.getElementById('bubble-simba');
+  const showBubble = (el: HTMLElement | null) => el?.classList.add('show');
+  const hideBubble = (el: HTMLElement | null) => el?.classList.remove('show');
+  simbaWrap?.addEventListener('mouseenter', () => {
+    showBubble(bubbleSimba);
+    discover('hover-simba', '🐱', 'Secreto 1/6: Simba ronronea al hover.');
+  });
+  simbaWrap?.addEventListener('mouseleave', () => hideBubble(bubbleSimba));
+  simbaWrap?.addEventListener('focus', () => showBubble(bubbleSimba));
+  simbaWrap?.addEventListener('blur', () => hideBubble(bubbleSimba));
+  simbaWrap?.addEventListener('click', () => {
+    showBubble(bubbleSimba);
+    discover('hover-simba', '🐱', 'Secreto 1/6: Simba ronronea al toque.');
+    setTimeout(() => hideBubble(bubbleSimba), 2200);
+  });
+
+  // 2) Doble click en Woonhak
+  const woonhakWrap = document.getElementById('woonhak-wrap');
+  const bubbleWoonhak = document.getElementById('bubble-woonhak');
+  woonhakWrap?.addEventListener('dblclick', () => {
+    showBubble(bubbleWoonhak);
+    discover('dblclick-woonhak', '🩵', 'Secreto 2/6: Woonhak te quiere mucho.');
+    setTimeout(() => hideBubble(bubbleWoonhak), 2500);
+  });
+  let lastTap = 0;
+  woonhakWrap?.addEventListener('touchend', (e) => {
+    const now = Date.now();
+    if (now - lastTap < 400) {
+      e.preventDefault();
+      showBubble(bubbleWoonhak);
+      discover('dblclick-woonhak', '🩵', 'Secreto 2/6: Woonhak te quiere mucho.');
+      setTimeout(() => hideBubble(bubbleWoonhak), 2500);
+    }
+    lastTap = now;
+  });
+
+  // Sungho hover bonus
+  const sunghoWrap = document.getElementById('sungho-wrap');
+  const bubbleSungho = document.getElementById('bubble-sungho');
+  sunghoWrap?.addEventListener('mouseenter', () => showBubble(bubbleSungho));
+  sunghoWrap?.addEventListener('mouseleave', () => hideBubble(bubbleSungho));
+
+  // 3) Click 5 al corazón
+  const heartBtn = document.getElementById('heart-click5');
+  const clickMsgs = [
+    'Hola 👋',
+    '¿Otra vez? Bien…',
+    'Te estoy mirando 👀',
+    'Casi casi…',
+    'Secreto 3/6 ✨ Cierra los ojos y piensa en algo lindo — te toca.',
+  ];
+  let heartCount = 0;
+  heartBtn?.addEventListener('click', () => {
+    heartCount++;
+    heartBtn.classList.remove('found');
+    void (heartBtn as HTMLElement).offsetWidth;
+    heartBtn.classList.add('found');
+    const idx = Math.min(heartCount - 1, clickMsgs.length - 1);
+    showToast('🩵', clickMsgs[idx]);
+    if (heartCount >= 5) discover('heart5', '🩵', 'Secreto 3/6 desbloqueado.');
+  });
+
+  // 4) Escribir "amor"
+  let buf = '';
+  document.addEventListener('keydown', (e) => {
+    if (e.key && e.key.length === 1) {
+      buf = (buf + e.key.toLowerCase()).slice(-8);
+      if (buf.includes('amor')) {
+        discover('typeamor', '💛', 'Secreto 4/6: lo escribiste. Yo también, todo el día.');
+        buf = '';
+      }
+    }
+  });
+
+  // 5) Idle 10s
+  let idleStart = Date.now();
+  let idleFired = false;
+  const resetIdle = () => { idleStart = Date.now(); idleFired = false; };
+  ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach((ev) =>
+    window.addEventListener(ev, resetIdle, { passive: true })
+  );
+  function rainHearts() {
+    for (let i = 0; i < 14; i++) {
+      const h = document.createElement('span');
+      h.textContent = ['🩵', '💛', '⭐', '✨'][Math.floor(Math.random() * 4)];
+      h.className = 'idle-rain';
+      h.style.left = Math.random() * 100 + 'vw';
+      h.style.animationDelay = Math.random() * 0.8 + 's';
+      document.body.appendChild(h);
+      setTimeout(() => h.remove(), 4500);
+    }
+  }
+  window.setInterval(() => {
+    if (!idleFired && Date.now() - idleStart > 10000) {
+      idleFired = true;
+      rainHearts();
+      discover('idle10', '🌙', 'Secreto 5/6: gracias por quedarte un rato conmigo.');
+    }
+  }, 500);
+
+  // 6) Scroll al fondo
+  const bottomCard = document.getElementById('bottom-card');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        bottomCard?.classList.add('found');
+        discover('scroll-bottom', '🌟', 'Secreto 6/6: ¡Llegaste hasta el fondo!');
+      }
+    });
+  }, { threshold: 0.5 });
+  if (bottomCard) obs.observe(bottomCard);
+
+  // Música
   const btn = document.getElementById('music-btn');
   const audio = document.getElementById('music') as HTMLAudioElement | null;
   btn?.addEventListener('click', async () => {
