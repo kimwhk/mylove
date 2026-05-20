@@ -1,0 +1,252 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PixelChar from '../components/PixelChar.astro';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<Layout title="Bienvenida a nuestro rincón 💙">
+  <section class="hero container">
+    <div class="hero-text">
+      <p class="eyebrow">06 MESES · 20·11·2025 → 20·05·2026</p>
+      <h1>
+        Bienvenida a nuestro
+        <span class="grad">pequeño rincón</span>
+        de internet <span class="heart-pop">❤️</span>
+      </h1>
+      <p class="lede">
+        Un lugar hecho a pixel y a corazón para celebrar los seis meses más
+        suaves del mundo. Pasea, presiona botones, atrapa corazones, y
+        encuentra los detalles escondidos.
+      </p>
+
+      <div class="cta-row">
+        <a class="btn" href={`${base}contador/`}>Ver contador ⏳</a>
+        <a class="btn ghost" href={`${base}sorpresas/`}>Abrir sorpresas 💌</a>
+        <a class="btn gold" href={`${base}juego/`}>Jugar 🎮</a>
+      </div>
+
+      <button id="music-btn" class="music" type="button" aria-pressed="false">
+        🎵 Música opcional
+      </button>
+      <audio id="music" loop preload="none">
+        <!-- Sin pista por defecto; suelta un .mp3 en /public/music.mp3 si quieres -->
+        <source src={`${base}music.mp3`} type="audio/mpeg" />
+      </audio>
+    </div>
+
+    <div class="hero-art card">
+      <div class="scene">
+        <div class="ground"></div>
+        <div class="char left"><PixelChar name="kim" size={120} bobbing label="Kim" /></div>
+        <div class="char center"><PixelChar name="simba" size={140} bobbing label="Simba" /></div>
+        <div class="char right"><PixelChar name="sungho" size={120} bobbing label="Sungho" /></div>
+        <span class="cloud c1">☁️</span>
+        <span class="cloud c2">☁️</span>
+        <span class="cloud c3">⭐</span>
+        <span class="cloud c4">⭐</span>
+      </div>
+      <p class="caption">Nuestros tres protagonistas — Kim, Simba &amp; Sungho.</p>
+    </div>
+  </section>
+
+  <section class="features container">
+    <a class="feat card" href={`${base}contador/`}>
+      <div class="ico">⏳</div>
+      <h3>Contador en vivo</h3>
+      <p>Los días, horas y segundos que llevamos juntos, en tiempo real.</p>
+    </a>
+    <a class="feat card" href={`${base}sorpresas/`}>
+      <div class="ico">💌</div>
+      <h3>Botones sorpresa</h3>
+      <p>"Abrir cuando estés triste", "Razones por las que te amo" y más.</p>
+    </a>
+    <a class="feat card" href={`${base}mensajes/`}>
+      <div class="ico">🧸</div>
+      <h3>Mensajes escondidos</h3>
+      <p>Detalles mágicos que aparecen al hover, click o teclear.</p>
+    </a>
+    <a class="feat card" href={`${base}juego/`}>
+      <div class="ico">🎮</div>
+      <h3>Mini juego pixel</h3>
+      <p>Atrapa corazones con Sungho. Cuidado con los cachivaches.</p>
+    </a>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(20px, 4vw, 40px);
+    align-items: center;
+    padding-top: clamp(20px, 5vw, 60px);
+    padding-bottom: clamp(20px, 5vw, 40px);
+  }
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; }
+  }
+  .eyebrow {
+    display: inline-block;
+    margin: 0 0 14px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 18%, transparent);
+    letter-spacing: 0.12em;
+  }
+  .grad {
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .heart-pop {
+    display: inline-block;
+    animation: pop 1.4s ease-in-out infinite;
+  }
+  @keyframes pop {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.18); }
+  }
+  .lede {
+    font-size: clamp(15px, 1.6vw, 17px);
+    color: var(--text-soft);
+    max-width: 52ch;
+  }
+  .cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 22px 0 14px;
+  }
+  .music {
+    margin-top: 10px;
+    background: transparent;
+    color: var(--text-soft);
+    border: 1px dashed var(--border);
+    border-radius: 999px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s ease;
+  }
+  .music:hover { background: var(--surface-2); }
+  .music[aria-pressed='true'] {
+    color: var(--gold);
+    border-style: solid;
+    border-color: var(--gold);
+  }
+
+  /* Escena pixel */
+  .hero-art { padding: 18px; }
+  .scene {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background:
+      linear-gradient(180deg,
+        color-mix(in srgb, var(--accent) 35%, transparent),
+        color-mix(in srgb, var(--surface) 80%, transparent));
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .ground {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 22%;
+    background:
+      repeating-linear-gradient(
+        45deg,
+        color-mix(in srgb, var(--primary) 30%, transparent) 0 6px,
+        color-mix(in srgb, var(--primary) 18%, transparent) 6px 12px
+      );
+  }
+  .char {
+    position: absolute;
+    bottom: 14%;
+  }
+  .char.left   { left: 6%; }
+  .char.center { left: 50%; transform: translateX(-50%); bottom: 10%; }
+  .char.right  { right: 6%; }
+  .cloud {
+    position: absolute;
+    font-size: 22px;
+    opacity: 0.85;
+    animation: drift 14s linear infinite;
+  }
+  .cloud.c1 { top: 8%;  left: 10%; animation-duration: 16s; }
+  .cloud.c2 { top: 16%; right: 18%; animation-duration: 22s; }
+  .cloud.c3 { top: 30%; left: 38%; font-size: 14px; color: var(--gold); }
+  .cloud.c4 { top: 10%; right: 8%; font-size: 14px; color: var(--gold); }
+  @keyframes drift {
+    0%   { transform: translateX(0); }
+    50%  { transform: translateX(20px); }
+    100% { transform: translateX(0); }
+  }
+  .caption {
+    text-align: center;
+    color: var(--text-soft);
+    font-size: 13px;
+    margin: 12px 0 0;
+  }
+
+  /* Features */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin: clamp(20px, 4vw, 30px) auto;
+  }
+  @media (max-width: 860px) {
+    .features { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .features { grid-template-columns: 1fr; }
+  }
+  .feat {
+    color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+  }
+  .feat:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 36px rgba(46, 111, 196, 0.18);
+    text-decoration: none;
+  }
+  .feat .ico {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .feat h3 {
+    font-size: 14px;
+    margin: 0 0 6px;
+  }
+  .feat p {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin: 0;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('music-btn');
+  const audio = document.getElementById('music') as HTMLAudioElement | null;
+  btn?.addEventListener('click', async () => {
+    if (!audio) return;
+    if (audio.paused) {
+      try {
+        await audio.play();
+        btn.setAttribute('aria-pressed', 'true');
+        btn.textContent = '🎵 Música ON · pausar';
+      } catch {
+        btn.textContent = '🎵 (Añade public/music.mp3)';
+      }
+    } else {
+      audio.pause();
+      btn.setAttribute('aria-pressed', 'false');
+      btn.textContent = '🎵 Música opcional';
+    }
+  });
+</script>

@@ -1,0 +1,37 @@
+---
+// Botón claro/oscuro con persistencia
+---
+
+<button id="theme-toggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+  <span class="sun">☀️</span>
+  <span class="moon">🌙</span>
+</button>
+
+<style>
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.15s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+  :root[data-theme='dark'] .sun { display: none; }
+  :root[data-theme='light'] .moon { display: none; }
+</style>
+
+<script>
+  const btn = document.getElementById('theme-toggle');
+  btn?.addEventListener('click', () => {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  });
+</script>

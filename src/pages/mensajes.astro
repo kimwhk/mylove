@@ -1,0 +1,303 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PixelChar from '../components/PixelChar.astro';
+---
+
+<Layout title="Mensajes escondidos · 🧸">
+  <section class="container secrets">
+    <header class="head">
+      <p class="eyebrow">🧸 SECRETOS</p>
+      <h1>Detalles <span class="grad">escondidos</span></h1>
+      <p class="sub">
+        Algunas cosas solo aparecen si pasas el mouse, haces click, presionas
+        una tecla, o esperas en silencio. La página tiene memoria.
+      </p>
+    </header>
+
+    <div class="grid">
+      <!-- 1. HOVER -->
+      <div class="tile card hover-tile">
+        <span class="tag">hover</span>
+        <h3>Pasa el mouse sobre Simba</h3>
+        <div class="art">
+          <PixelChar name="simba" size={120} label="Simba" />
+          <span class="bubble">prrrr ❤ te conoce</span>
+        </div>
+        <p class="hint">(En mobile: tócala y mantén)</p>
+      </div>
+
+      <!-- 2. CLICK -->
+      <div class="tile card">
+        <span class="tag">click</span>
+        <h3>Clickea el corazón <em>x5</em></h3>
+        <button id="heart-btn" class="big-heart" aria-label="Corazón secreto">
+          💙
+        </button>
+        <p id="click-out" class="out">…</p>
+      </div>
+
+      <!-- 3. KONAMI -->
+      <div class="tile card">
+        <span class="tag">teclas</span>
+        <h3>Escribe <code>amor</code> en tu teclado</h3>
+        <p class="hint">No hay input. Solo escribe. Yo aviso.</p>
+        <p id="key-out" class="out">…</p>
+      </div>
+
+      <!-- 4. IDLE -->
+      <div class="tile card">
+        <span class="tag">espera</span>
+        <h3>Quédate quieto 10 segundos</h3>
+        <p class="hint">No muevas el mouse ni la pantalla.</p>
+        <p id="idle-out" class="out">…</p>
+        <div class="progress"><span id="idle-bar"></span></div>
+      </div>
+
+      <!-- 5. SCROLL -->
+      <div class="tile card">
+        <span class="tag">scroll</span>
+        <h3>Llega hasta abajo</h3>
+        <p class="hint">Más abajo… más… casi…</p>
+        <p id="scroll-out" class="out">…</p>
+      </div>
+
+      <!-- 6. DOUBLE CLICK -->
+      <div class="tile card">
+        <span class="tag">doble click</span>
+        <h3>Doble click a Kim</h3>
+        <div class="art clickable" id="kim-tile">
+          <PixelChar name="kim" size={120} label="Kim" />
+          <span id="kim-bubble" class="bubble hidden">te quiero, Sungho 💙</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="finale" id="finale">— Sigues bajando… aún más… 👀</p>
+    <div class="bottom-secret card" id="bottom-secret">
+      <span class="ico">🌟</span>
+      <h3>Lo encontraste</h3>
+      <p>Premio por curiosa: aquí te dejo un beso invisible. (Lo sentiste? 😌)</p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .secrets { padding-top: clamp(20px, 5vw, 40px); }
+  .head { text-align: center; margin-bottom: 28px; }
+  .eyebrow {
+    display: inline-block;
+    margin: 0 0 12px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 18%, transparent);
+    letter-spacing: 0.12em;
+  }
+  .grad {
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sub { color: var(--text-soft); max-width: 60ch; margin-inline: auto; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 860px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }
+
+  .tile {
+    position: relative;
+    min-height: 240px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .tile h3 { font-size: 14px; margin: 0; }
+  .tile .hint { font-size: 12px; color: var(--text-soft); margin: 0; }
+  .tile .out {
+    margin-top: auto;
+    font-size: 14px;
+    color: var(--primary);
+    min-height: 1.4em;
+  }
+  .tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-size: 10px;
+    color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 16%, transparent);
+    padding: 2px 8px;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .art {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .bubble {
+    position: absolute;
+    top: -6px;
+    right: 6px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px 10px;
+    font-size: 12px;
+    color: var(--text);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    pointer-events: none;
+  }
+  .hover-tile:hover .bubble,
+  .hover-tile:focus-within .bubble { opacity: 1; transform: translateY(0); }
+
+  .big-heart {
+    align-self: center;
+    background: transparent;
+    border: none;
+    font-size: 64px;
+    cursor: pointer;
+    transition: transform 0.15s ease;
+  }
+  .big-heart:hover { transform: scale(1.1); }
+  .big-heart.boom {
+    animation: boom 0.6s ease;
+  }
+  @keyframes boom {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.4) rotate(-8deg); }
+    70%  { transform: scale(1.2) rotate(8deg); }
+    100% { transform: scale(1); }
+  }
+
+  .progress {
+    width: 100%;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+  .progress span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--primary), var(--gold));
+    transition: width 0.2s linear;
+  }
+
+  .clickable { cursor: pointer; user-select: none; }
+  .bubble.hidden { opacity: 0; }
+  .bubble.show { opacity: 1; transform: translateY(0); }
+
+  .finale {
+    text-align: center;
+    color: var(--text-soft);
+    margin: 60px 0 14px;
+  }
+  .bottom-secret {
+    max-width: 460px;
+    margin: 60vh auto 80px;
+    text-align: center;
+    border: 2px dashed var(--gold);
+  }
+  .bottom-secret .ico { font-size: 36px; display: block; margin-bottom: 6px; }
+  .bottom-secret h3 { margin: 0 0 6px; }
+  .bottom-secret p { color: var(--text-soft); margin: 0; }
+</style>
+
+<script>
+  // 1. Click x5 al corazón
+  const heart = document.getElementById('heart-btn');
+  const clickOut = document.getElementById('click-out');
+  let clicks = 0;
+  const clickMessages = [
+    'Hola 👋',
+    '¿Otra vez? Bien…',
+    'Te estoy mirando 👀',
+    'Casi casi…',
+    '✨ Secreto: cierra los ojos y piensa en algo lindo. Te toca.',
+  ];
+  heart?.addEventListener('click', () => {
+    clicks++;
+    heart.classList.remove('boom');
+    void heart.offsetWidth;
+    heart.classList.add('boom');
+    if (clickOut) clickOut.textContent = clickMessages[Math.min(clicks - 1, clickMessages.length - 1)];
+  });
+
+  // 2. Konami-style: escribe "amor"
+  const keyOut = document.getElementById('key-out');
+  let buf = '';
+  document.addEventListener('keydown', (e) => {
+    if (e.key.length === 1) {
+      buf = (buf + e.key.toLowerCase()).slice(-8);
+      if (buf.includes('amor')) {
+        if (keyOut) keyOut.textContent = 'lo escribiste. yo también, todo el día. 💙';
+        buf = '';
+      }
+    }
+  });
+
+  // 3. Espera 10s
+  const idleBar = document.getElementById('idle-bar');
+  const idleOut = document.getElementById('idle-out');
+  let idleStart = Date.now();
+  let idleDone = false;
+  const resetIdle = () => {
+    idleStart = Date.now();
+    idleDone = false;
+    if (idleBar) idleBar.style.width = '0%';
+    if (idleOut) idleOut.textContent = '…';
+  };
+  ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach((ev) =>
+    window.addEventListener(ev, resetIdle, { passive: true })
+  );
+  setInterval(() => {
+    const elapsed = (Date.now() - idleStart) / 1000;
+    const pct = Math.min(100, (elapsed / 10) * 100);
+    if (idleBar) idleBar.style.width = pct + '%';
+    if (elapsed >= 10 && !idleDone) {
+      idleDone = true;
+      if (idleOut) idleOut.textContent = 'gracias por quedarte un rato conmigo. ✨';
+    }
+  }, 200);
+
+  // 4. Scroll al fondo
+  const scrollOut = document.getElementById('scroll-out');
+  const finale = document.getElementById('finale');
+  let scrolled = false;
+  window.addEventListener('scroll', () => {
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    const ratio = window.scrollY / Math.max(1, max);
+    if (ratio > 0.92 && !scrolled) {
+      scrolled = true;
+      if (scrollOut) scrollOut.textContent = '¡lo lograste! premio abajo 🌟';
+      if (finale) finale.textContent = '🌟 Casi… mira más abajo.';
+    }
+  });
+
+  // 5. Doble click a Kim
+  const kimTile = document.getElementById('kim-tile');
+  const kimBubble = document.getElementById('kim-bubble');
+  kimTile?.addEventListener('dblclick', () => {
+    kimBubble?.classList.remove('hidden');
+    kimBubble?.classList.add('show');
+    setTimeout(() => {
+      kimBubble?.classList.remove('show');
+      kimBubble?.classList.add('hidden');
+    }, 2500);
+  });
+</script>

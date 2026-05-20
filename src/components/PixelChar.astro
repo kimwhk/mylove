@@ -1,0 +1,159 @@
+---
+type CharName = 'kim' | 'sungho' | 'simba';
+
+interface Props {
+  name: CharName;
+  size?: number;
+  bobbing?: boolean;
+  label?: string;
+}
+
+const { name, size = 96, bobbing = false, label } = Astro.props;
+
+// Paleta de colores compartida
+const palette: Record<string, string> = {
+  '.': 'transparent',
+  // Kim
+  H: '#5a3a1f', // brown hair
+  h: '#3a230f',
+  // pieles
+  F: '#ffd9b3',
+  f: '#e7b88e',
+  // ojos/detalles oscuros
+  E: '#1c1c1c',
+  M: '#c0392b', // boca
+  // Kim ropa
+  S: '#2e6fc4', // blue shirt
+  s: '#1f4e91',
+  P: '#0a1f44', // pants navy
+  B: '#1c1c1c', // shoes
+  // Sungho
+  Y: '#f5c542', // blonde
+  y: '#caa11f',
+  G: '#d4a017', // gold shirt
+  g: '#9c7400',
+  // Simba
+  O: '#ff8c1a',
+  o: '#d96c00',
+  N: '#ff4d88', // pink nose
+  V: '#2ecc71', // green eyes
+};
+
+const sprites: Record<CharName, string[]> = {
+  // Kim — alto, pelo castaño, camisa azul (12 x 18)
+  kim: [
+    '....HHHH....',
+    '...HHHHHH...',
+    '..HHHHHHHH..',
+    '..HFFFFFFH..',
+    '..HFEFFEFH..',
+    '...FFFFFF...',
+    '....FMMF....',
+    '....FFFF....',
+    '.SSSSSSSSSS.',
+    'SSSSSSSSSSSS',
+    'FSSSSSSSSSSF',
+    'FSSSSSSSSSSF',
+    '.SSSSSSSSSS.',
+    '..PPPPPPPP..',
+    '..PPP..PPP..',
+    '..PPP..PPP..',
+    '..PPP..PPP..',
+    '..BBB..BBB..',
+  ],
+  // Sungho — más bajo, pelo rubio, camisa dorada (12 x 16)
+  sungho: [
+    '....YYYY....',
+    '...YYYYYY...',
+    '..YYYYYYYY..',
+    '..YFFFFFFY..',
+    '..YFEFFEFY..',
+    '...FFFFFF...',
+    '....FMMF....',
+    '....FFFF....',
+    '.GGGGGGGGGG.',
+    'GGGGGGGGGGGG',
+    'FGGGGGGGGGGF',
+    '.GGGGGGGGGG.',
+    '..PPPPPPPP..',
+    '..PPP..PPP..',
+    '..PPP..PPP..',
+    '..BBB..BBB..',
+  ],
+  // Simba — gato naranja (14 x 12)
+  simba: [
+    '..OO......OO..',
+    '.OOOO....OOOO.',
+    'OOOOOOOOOOOOOO',
+    'OOVVOOOOOOVVOO',
+    'OOVVOOOOOOVVOO',
+    'OOOOOONNOOOOOO',
+    'OOOOOoooooOOOO',
+    '.OOOOOOOOOOOO.',
+    '..OOOOOOOOOO..',
+    '..OO......OO..',
+    '..OO......OO..',
+    '..BB......BB..',
+  ],
+};
+
+const sprite = sprites[name];
+const cols = sprite[0].length;
+const rows = sprite.length;
+const pixels: { x: number; y: number; fill: string }[] = [];
+
+for (let y = 0; y < rows; y++) {
+  for (let x = 0; x < cols; x++) {
+    const ch = sprite[y][x];
+    const fill = palette[ch];
+    if (fill && fill !== 'transparent') {
+      pixels.push({ x, y, fill });
+    }
+  }
+}
+
+const width = size;
+const height = (size * rows) / cols;
+---
+
+<figure class:list={['pixel-char', { bobbing }]} style={`width:${width}px;`}>
+  <svg
+    viewBox={`0 0 ${cols} ${rows}`}
+    width={width}
+    height={height}
+    shape-rendering="crispEdges"
+    role="img"
+    aria-label={label ?? name}
+  >
+    {pixels.map((p) => <rect x={p.x} y={p.y} width={1} height={1} fill={p.fill} />)}
+  </svg>
+  {label && <figcaption>{label}</figcaption>}
+</figure>
+
+<style>
+  .pixel-char {
+    margin: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .pixel-char svg {
+    image-rendering: pixelated;
+    filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.12));
+  }
+  .pixel-char figcaption {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    color: var(--text-soft);
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .pixel-char.bobbing svg {
+    animation: bob 2s ease-in-out infinite;
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+</style>
