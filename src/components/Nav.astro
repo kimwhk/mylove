@@ -19,18 +19,7 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       <span class="brand-text">Woonhak 🐱 Sungho</span>
     </a>
 
-    <button
-      id="nav-toggle"
-      class="burger"
-      type="button"
-      aria-label="Abrir menú"
-      aria-expanded="false"
-      aria-controls="nav-menu"
-    >
-      <span></span><span></span><span></span>
-    </button>
-
-    <nav class="links" id="nav-menu" aria-label="Principal">
+    <nav class="nav-inline" aria-label="Principal">
       {
         links.map((l) => {
           const path = l.href.replace(/\/$/, '');
@@ -43,11 +32,41 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
           );
         })
       }
-      <span class="toggle-wrap"><ThemeToggle /></span>
+      <span class="inline-toggle"><ThemeToggle /></span>
     </nav>
+
+    <button
+      id="nav-toggle"
+      class="burger"
+      type="button"
+      aria-label="Abrir menú"
+      aria-expanded="false"
+      aria-controls="drawer"
+    >
+      <span></span><span></span><span></span>
+    </button>
   </div>
-  <div class="nav-backdrop" id="nav-backdrop" aria-hidden="true"></div>
 </header>
+
+<!-- Drawer y backdrop FUERA del header para evitar conflictos de stacking context -->
+<div class="drawer-backdrop" id="drawer-backdrop" aria-hidden="true"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Menú">
+  <nav class="drawer-nav" aria-label="Principal móvil">
+    {
+      links.map((l) => {
+        const path = l.href.replace(/\/$/, '');
+        const isActive = current === path;
+        return (
+          <a href={`${base}${l.href}`} class:list={[{ active: isActive }]} data-drawer-link>
+            <span class="d-icn" aria-hidden="true">{l.icon}</span>
+            <span class="d-lbl">{l.label}</span>
+          </a>
+        );
+      })
+    }
+    <div class="drawer-foot"><ThemeToggle /></div>
+  </nav>
+</aside>
 
 <style>
   /* ===========================
@@ -59,10 +78,11 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     z-index: 50;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    background: color-mix(in srgb, var(--surface) 88%, transparent);
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
     border-bottom: 1px solid var(--border);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    transition: z-index 0s;
   }
   .row {
     display: flex;
@@ -82,7 +102,7 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     text-decoration: none;
     flex: 0 1 auto;
     min-width: 0;
-    padding: 4px 0;
+    padding: 4px 6px 4px 2px;
   }
   .brand-text {
     background: linear-gradient(90deg, var(--primary), var(--gold));
@@ -94,15 +114,12 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     text-overflow: ellipsis;
   }
 
-  .links {
+  .nav-inline {
     display: flex;
     align-items: center;
     gap: 4px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
   }
-  .links a {
+  .nav-inline a {
     color: var(--text);
     text-decoration: none;
     font-weight: 500;
@@ -115,37 +132,42 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     align-items: center;
     gap: 6px;
   }
-  .links a:hover { background: var(--surface-2); }
-  .links a.active {
+  .nav-inline a:hover { background: var(--surface-2); }
+  .nav-inline a.active {
     color: var(--primary);
     background: color-mix(in srgb, var(--primary) 14%, transparent);
   }
-  .toggle-wrap { margin-left: 6px; display: inline-flex; }
+  .inline-toggle { margin-left: 6px; display: inline-flex; }
 
-  /* Hamburguesa y backdrop ocultos en desktop */
+  /* Hamburguesa, drawer y backdrop ocultos en desktop */
   .burger { display: none; }
-  .nav-backdrop { display: none; }
+  .drawer-backdrop, .drawer { display: none; }
 
   /* ===========================
      Tablet (≤ 1024px): solo iconos en links
      =========================== */
   @media (max-width: 1024px) {
-    .links a .lbl { display: none; }
-    .links a {
+    .nav-inline a .lbl { display: none; }
+    .nav-inline a {
       padding: 8px;
       font-size: 18px;
     }
   }
 
   /* ===========================
-     Mobile (≤ 760px): hamburguesa + drawer
+     Mobile (≤ 760px): hamburguesa + drawer afuera
      =========================== */
   @media (max-width: 760px) {
-    .brand {
-      /* Acortamos el texto en móvil sin duplicar el DOM */
-      max-width: 60vw;
-      font-size: 11px;
+    .row {
+      padding: 12px 0;
+      gap: 8px;
     }
+    .brand {
+      padding-left: 6px;
+      font-size: 11px;
+      max-width: 58vw;
+    }
+    .nav-inline { display: none; }
 
     .burger {
       display: inline-flex;
@@ -160,8 +182,7 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       border-radius: 10px;
       cursor: pointer;
       transition: background 0.15s ease;
-      position: relative;
-      z-index: 170; /* sobre el drawer */
+      flex-shrink: 0;
     }
     .burger:hover { background: var(--surface-2); }
     .burger span {
@@ -173,7 +194,22 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       transition: transform 0.25s ease, opacity 0.2s ease;
     }
 
-    .links {
+    /* Backdrop: SIEMPRE en DOM pero invisible hasta que abre */
+    .drawer-backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 10, 25, 0.5);
+      backdrop-filter: blur(3px);
+      -webkit-backdrop-filter: blur(3px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+      z-index: 150;
+    }
+
+    .drawer {
+      display: block;
       position: fixed;
       top: 0;
       right: 0;
@@ -182,57 +218,57 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       background: var(--surface);
       border-left: 1px solid var(--border);
       box-shadow: -12px 0 40px rgba(0, 0, 0, 0.22);
-      padding: 84px 18px 24px;
+      padding: 76px 18px 24px;
       padding-right: max(18px, env(safe-area-inset-right));
-      flex-direction: column;
-      align-items: stretch;
-      gap: 4px;
       transform: translateX(100%);
       transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
-      z-index: 160; /* sobre toast (100), chip (60), idle-rain */
+      z-index: 160;
       overflow-y: auto;
       will-change: transform;
     }
-    .links a {
-      padding: 14px 14px;
+
+    .drawer-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .drawer-nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
       font-size: 16px;
+      padding: 14px 14px;
       border-radius: 12px;
+      transition: background 0.2s ease;
       display: flex;
       align-items: center;
       gap: 12px;
     }
-    .links a .lbl { display: inline; }
-    .links a .icn { font-size: 22px; }
-
-    .toggle-wrap {
-      margin: 14px 0 0;
+    .drawer-nav a:hover { background: var(--surface-2); }
+    .drawer-nav a.active {
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+    }
+    .drawer-nav .d-icn { font-size: 22px; }
+    .drawer-foot {
+      margin-top: 14px;
       padding-top: 14px;
       border-top: 1px dashed var(--border);
     }
 
-    .nav-backdrop {
-      display: block;
-      position: fixed;
-      inset: 0;
-      background: rgba(5, 10, 25, 0.45);
-      backdrop-filter: blur(3px);
-      -webkit-backdrop-filter: blur(3px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-      z-index: 150;
-    }
-
-    .nav.is-open .links { transform: translateX(0); }
-    .nav.is-open .nav-backdrop {
+    /* Abierto: nav se eleva por encima del drawer para que la X
+       (hamburguesa transformada) siga clickeable */
+    body.nav-open .nav { z-index: 165; }
+    body.nav-open .drawer-backdrop {
       opacity: 1;
-      pointer-events: auto;
+      visibility: visible;
     }
-    .nav.is-open .burger span:nth-child(1) {
+    body.nav-open .drawer { transform: translateX(0); }
+    body.nav-open .burger span:nth-child(1) {
       transform: translateY(6.5px) rotate(45deg);
     }
-    .nav.is-open .burger span:nth-child(2) { opacity: 0; }
-    .nav.is-open .burger span:nth-child(3) {
+    body.nav-open .burger span:nth-child(2) { opacity: 0; }
+    body.nav-open .burger span:nth-child(3) {
       transform: translateY(-6.5px) rotate(-45deg);
     }
   }
@@ -241,46 +277,50 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
      Mobile chico (≤ 380px)
      =========================== */
   @media (max-width: 380px) {
-    .brand { font-size: 10px; max-width: 50vw; }
+    .brand { font-size: 10px; max-width: 52vw; padding-left: 4px; }
     .row { padding: 10px 0; min-height: 48px; }
   }
 </style>
 
 <style is:global>
-  /* Lock del scroll cuando el menú está abierto.
-     Lo aplicamos por clase desde JS (más confiable que :has()). */
   body.nav-open { overflow: hidden; }
+  /* Aire extra en el container para mobile */
+  @media (max-width: 760px) {
+    .container { padding: 0 max(18px, env(safe-area-inset-left)) 0 max(18px, env(safe-area-inset-right)); }
+  }
 </style>
 
 <script>
   const nav = document.getElementById('site-nav');
   const toggle = document.getElementById('nav-toggle');
-  const backdrop = document.getElementById('nav-backdrop');
-  const menu = document.getElementById('nav-menu');
+  const backdrop = document.getElementById('drawer-backdrop');
+  const drawer = document.getElementById('drawer');
 
   function setOpen(open: boolean) {
-    if (!nav || !toggle) return;
-    nav.classList.toggle('is-open', open);
+    if (!nav || !toggle || !drawer) return;
     document.body.classList.toggle('nav-open', open);
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   }
 
   toggle?.addEventListener('click', () => {
-    setOpen(!nav?.classList.contains('is-open'));
+    setOpen(!document.body.classList.contains('nav-open'));
   });
 
   backdrop?.addEventListener('click', () => setOpen(false));
 
-  menu?.querySelectorAll('a').forEach((a) => {
+  drawer?.querySelectorAll('a').forEach((a) => {
     a.addEventListener('click', () => setOpen(false));
   });
 
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && nav?.classList.contains('is-open')) setOpen(false);
+    if (e.key === 'Escape' && document.body.classList.contains('nav-open')) {
+      setOpen(false);
+    }
   });
 
-  // Cierra si se redimensiona a desktop con el menú abierto
+  // Cierra si se redimensiona a desktop
   let lastW = window.innerWidth;
   window.addEventListener('resize', () => {
     if (window.innerWidth > 760 && lastW <= 760) setOpen(false);
