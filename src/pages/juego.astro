@@ -18,7 +18,11 @@ import Layout from '../layouts/Layout.astro';
       <div class="stat">Puntos: <span id="score">0</span></div>
       <div class="stat">Récord: <span id="best">0</span></div>
       <div class="stat">Vidas: <span id="lives">❤❤❤</span></div>
-      <button id="start" class="btn">Empezar</button>
+      <div class="hud-btns">
+        <button id="start" class="btn">Empezar</button>
+        <button id="pause" class="btn ghost" type="button" hidden>Pausa ⏸</button>
+        <button id="finish" class="btn gold" type="button" hidden>Terminar ✓</button>
+      </div>
     </div>
 
     <div id="stage" class="stage" tabindex="0" aria-label="Área de juego">
@@ -94,6 +98,14 @@ import Layout from '../layouts/Layout.astro';
   }
   .stat { color: var(--text); }
   .stat span { color: var(--primary); margin-left: 6px; }
+  .hud-btns {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .hud-btns .btn { font-size: 11px; padding: 10px 14px; }
+  .hud-btns .btn[hidden] { display: none; }
 
   .stage {
     position: relative;
@@ -319,6 +331,8 @@ import Layout from '../layouts/Layout.astro';
   const bestEl = document.getElementById('best') as HTMLElement;
   const livesEl = document.getElementById('lives') as HTMLElement;
   const startBtn = document.getElementById('start') as HTMLButtonElement;
+  const pauseBtn = document.getElementById('pause') as HTMLButtonElement;
+  const finishBtn = document.getElementById('finish') as HTMLButtonElement;
   const overlay = document.getElementById('overlay') as HTMLElement;
   const msgCard = document.getElementById('msg-card') as HTMLElement;
   const romanticCard = document.getElementById('romantic-card') as HTMLElement;
@@ -386,6 +400,7 @@ import Layout from '../layouts/Layout.astro';
   let score = 0;
   let lives = 3;
   let running = false;
+  let paused = false;
   let baseSpeed = 130;
   let spawnTimer = 0;
   let nextSpawnIn = 0.7;
@@ -394,6 +409,14 @@ import Layout from '../layouts/Layout.astro';
 
   const best = Number(localStorage.getItem('best-score') || 0);
   bestEl.textContent = String(best);
+
+  // Muestra/oculta los botones según el estado del juego.
+  function setControls(state: 'idle' | 'playing' | 'paused') {
+    startBtn.hidden = state !== 'idle';
+    pauseBtn.hidden = state === 'idle';
+    finishBtn.hidden = state === 'idle';
+    pauseBtn.textContent = state === 'paused' ? 'Seguir ▶' : 'Pausa ⏸';
+  }
 
   function setOverlay(title: string, body: string) {
     ovTitle.textContent = title;
@@ -518,16 +541,59 @@ import Layout from '../layouts/Layout.astro';
     playerX = stageW / 2;
     placePlayer();
     running = true;
+    paused = false;
     lastT = 0;
     hideOverlay();
+    setControls('playing');
     raf = requestAnimationFrame(loop);
     stage.focus();
+  }
+
+  // Pausa / reanuda sin perder el progreso.
+  function pause() {
+    if (!running || paused) return;
+    paused = true;
+    running = false;
+    cancelAnimationFrame(raf);
+    setControls('paused');
+    setOverlay('Pausado ⏸', 'Pulsa "Seguir" o el espacio para continuar.');
+  }
+  function resume() {
+    if (!paused) return;
+    paused = false;
+    running = true;
+    lastT = 0; // evita un salto grande de dt al reanudar
+    hideOverlay();
+    setControls('playing');
+    raf = requestAnimationFrame(loop);
+    stage.focus();
+  }
+  function togglePause() {
+    if (paused) resume();
+    else pause();
+  }
+
+  // Salida voluntaria: muestra el mensaje bonito de inmediato con tu puntaje.
+  function finish() {
+    if (!running && !paused) return;
+    running = false;
+    paused = false;
+    cancelAnimationFrame(raf);
+    const finalScore = score;
+    const prev = Number(localStorage.getItem('best-score') || 0);
+    if (finalScore > prev) {
+      localStorage.setItem('best-score', String(finalScore));
+      bestEl.textContent = String(finalScore);
+    }
+    setControls('idle');
+    showRomantic(finalScore);
   }
 
   // Cuando "en teoría" perderías todas las vidas, no termina seco,
   // mostramos un mensaje bonito tras un breve respiro.
   function end() {
     running = false;
+    paused = false;
     cancelAnimationFrame(raf);
     livesEl.textContent = '💔💔💔';
     const finalScore = score;
@@ -536,12 +602,15 @@ import Layout from '../layouts/Layout.astro';
       localStorage.setItem('best-score', String(finalScore));
       bestEl.textContent = String(finalScore);
     }
+    setControls('idle');
     // Pequeño respiro para que se "asiente" el momento.
     window.setTimeout(() => showRomantic(finalScore), 1400);
   }
 
   startBtn.addEventListener('click', start);
   romAgain.addEventListener('click', start);
+  pauseBtn.addEventListener('click', togglePause);
+  finishBtn.addEventListener('click', finish);
 
   // ===== Movimiento: teclado =====
   const keys: Record<string, boolean> = {};
@@ -550,9 +619,12 @@ import Layout from '../layouts/Layout.astro';
       keys[e.key] = true;
       e.preventDefault();
     }
-    if (!running && (e.key === 'Enter' || e.key === ' ')) {
-      start();
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!running && !paused) start();
+      else togglePause();
     }
+    if (e.key === 'Escape' && running && !paused) pause();
   });
   window.addEventListener('keyup', (e) => { keys[e.key] = false; });
 
