@@ -1,16 +1,19 @@
 ---
-// Botón claro/oscuro con persistencia
+// Botón claro/oscuro con persistencia.
+// Usa clase (no id) + delegación para que funcionen TODAS las instancias
+// de la página (navbar, footer, etc.) sin chocar por ids duplicados.
 ---
 
-<button id="theme-toggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">
+<button class="theme-toggle" type="button" aria-label="Cambiar tema" title="Cambiar tema">
   <span class="sun">☀️</span>
   <span class="moon">🌙</span>
 </button>
 
 <style>
-  button {
+  .theme-toggle {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     padding: 6px 12px;
     border-radius: 999px;
@@ -19,19 +22,26 @@
     color: var(--text);
     cursor: pointer;
     font-size: 14px;
-    transition: transform 0.15s ease;
+    line-height: 1;
+    transition: transform 0.15s ease, background 0.2s ease;
   }
-  button:hover { transform: translateY(-1px); }
-  :root[data-theme='dark'] .sun { display: none; }
-  :root[data-theme='light'] .moon { display: none; }
+  .theme-toggle:hover { transform: translateY(-1px); background: var(--surface-2); }
+  :root[data-theme='dark'] .theme-toggle .sun { display: none; }
+  :root[data-theme='light'] .theme-toggle .moon { display: none; }
 </style>
 
 <script>
-  const btn = document.getElementById('theme-toggle');
-  btn?.addEventListener('click', () => {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    html.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  });
+  // Delegación global: un solo listener cubre cualquier .theme-toggle de la página.
+  // El flag evita registrarlo dos veces si el componente se incluye varias veces.
+  if (!(window as any).__themeToggleBound) {
+    (window as any).__themeToggleBound = true;
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement)?.closest('.theme-toggle');
+      if (!btn) return;
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch {}
+    });
+  }
 </script>

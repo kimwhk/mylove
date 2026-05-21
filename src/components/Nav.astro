@@ -32,19 +32,21 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
           );
         })
       }
-      <span class="inline-toggle"><ThemeToggle /></span>
     </nav>
 
-    <button
-      id="nav-toggle"
-      class="burger"
-      type="button"
-      aria-label="Abrir menú"
-      aria-expanded="false"
-      aria-controls="drawer"
-    >
-      <span></span><span></span><span></span>
-    </button>
+    <div class="nav-actions">
+      <span class="nav-toggle-wrap"><ThemeToggle /></span>
+      <button
+        id="nav-toggle"
+        class="burger"
+        type="button"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="drawer"
+      >
+        <span></span><span></span><span></span>
+      </button>
+    </div>
   </div>
 </header>
 
@@ -64,7 +66,6 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
         );
       })
     }
-    <div class="drawer-foot"><ThemeToggle /></div>
   </nav>
 </aside>
 
@@ -137,7 +138,14 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     color: var(--primary);
     background: color-mix(in srgb, var(--primary) 14%, transparent);
   }
-  .inline-toggle { margin-left: 6px; display: inline-flex; }
+
+  /* Acciones a la derecha: toggle (siempre) + hamburguesa (mobile) */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
 
   /* Hamburguesa, drawer y backdrop ocultos en desktop */
   .burger { display: none; }
@@ -250,11 +258,6 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       background: color-mix(in srgb, var(--primary) 14%, transparent);
     }
     .drawer-nav .d-icn { font-size: 22px; }
-    .drawer-foot {
-      margin-top: 14px;
-      padding-top: 14px;
-      border-top: 1px dashed var(--border);
-    }
 
     /* Abierto: nav se eleva por encima del drawer para que la X
        (hamburguesa transformada) siga clickeable */
