@@ -1,4 +1,4 @@
-# mylove · 6 meses Woonhak & Sungho 🩵✨
+# mylove · 6 meses Woonhak & Sungho ✨
 
 
-Hecho con 🩵.
+Hecho con 🩵
