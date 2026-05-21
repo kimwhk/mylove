@@ -16,8 +16,7 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
 <header class="nav" id="site-nav">
   <div class="container row">
     <a class="brand" href={base} aria-label="Inicio">
-      <span class="brand-text brand-full">Woonhak &amp; Sungho</span>
-      <span class="brand-text brand-short" aria-hidden="true">W &amp; S</span>
+      <span class="brand-text">Woonhak &amp; Sungho</span>
     </a>
 
     <button
@@ -38,7 +37,8 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
           const isActive = current === path;
           return (
             <a href={`${base}${l.href}`} class:list={[{ active: isActive }]}>
-              <span aria-hidden="true">{l.icon}</span> <span class="lbl">{l.label}</span>
+              <span class="icn" aria-hidden="true">{l.icon}</span>
+              <span class="lbl">{l.label}</span>
             </a>
           );
         })
@@ -50,14 +50,19 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
 </header>
 
 <style>
+  /* ===========================
+     Layout base (desktop ≥ 1024px)
+     =========================== */
   .nav {
     position: sticky;
     top: 0;
     z-index: 50;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    background: color-mix(in srgb, var(--surface) 80%, transparent);
+    background: color-mix(in srgb, var(--surface) 88%, transparent);
     border-bottom: 1px solid var(--border);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
   }
   .row {
     display: flex;
@@ -71,13 +76,13 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
     color: var(--text);
     font-family: 'Press Start 2P', sans-serif;
-    font-size: clamp(11px, 1.6vw, 14px);
+    font-size: clamp(10px, 1.6vw, 14px);
     text-decoration: none;
-    flex-shrink: 0;
+    flex: 0 1 auto;
     min-width: 0;
+    padding: 4px 0;
   }
   .brand-text {
     background: linear-gradient(90deg, var(--primary), var(--gold));
@@ -85,13 +90,17 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     background-clip: text;
     color: transparent;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .brand-short { display: none; }
 
   .links {
     display: flex;
     align-items: center;
     gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
   .links a {
     color: var(--text);
@@ -100,48 +109,26 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     font-size: 14px;
     padding: 8px 10px;
     border-radius: 8px;
-    transition: background 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .links a:hover { background: var(--surface-2); }
   .links a.active {
     color: var(--primary);
     background: color-mix(in srgb, var(--primary) 14%, transparent);
   }
-  .links a .lbl { display: inline; }
-  .toggle-wrap { margin-left: 6px; }
+  .toggle-wrap { margin-left: 6px; display: inline-flex; }
 
-  /* Backdrop (oculto en desktop, visible cuando menu abierto en mobile) */
-  .nav-backdrop {
-    display: none;
-  }
+  /* Hamburguesa y backdrop ocultos en desktop */
+  .burger { display: none; }
+  .nav-backdrop { display: none; }
 
-  /* Hamburguesa: oculta en desktop */
-  .burger {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    width: 44px;
-    height: 44px;
-    padding: 12px 9px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .burger:hover { background: var(--surface-2); }
-  .burger span {
-    display: block;
-    width: 100%;
-    height: 3px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform 0.25s ease, opacity 0.2s ease;
-  }
-
-  /* ===== Tablet: oculta texto, deja iconos ===== */
+  /* ===========================
+     Tablet (≤ 1024px): solo iconos en links
+     =========================== */
   @media (max-width: 1024px) {
     .links a .lbl { display: none; }
     .links a {
@@ -150,40 +137,73 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     }
   }
 
-  /* ===== Mobile (≤ 760px): hamburguesa ===== */
+  /* ===========================
+     Mobile (≤ 760px): hamburguesa + drawer
+     =========================== */
   @media (max-width: 760px) {
-    .brand-full { display: none; }
-    .brand-short { display: inline; }
+    .brand {
+      /* Acortamos el texto en móvil sin duplicar el DOM */
+      max-width: 60vw;
+      font-size: 11px;
+    }
 
-    .burger { display: inline-flex; }
+    .burger {
+      display: inline-flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 12px 9px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      position: relative;
+      z-index: 170; /* sobre el drawer */
+    }
+    .burger:hover { background: var(--surface-2); }
+    .burger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.25s ease, opacity 0.2s ease;
+    }
 
     .links {
       position: fixed;
       top: 0;
       right: 0;
       bottom: 0;
-      width: min(78vw, 320px);
+      width: min(82vw, 320px);
       background: var(--surface);
       border-left: 1px solid var(--border);
-      box-shadow: -12px 0 40px rgba(0, 0, 0, 0.18);
-      padding: 80px 18px 24px;
+      box-shadow: -12px 0 40px rgba(0, 0, 0, 0.22);
+      padding: 84px 18px 24px;
+      padding-right: max(18px, env(safe-area-inset-right));
       flex-direction: column;
       align-items: stretch;
       gap: 4px;
       transform: translateX(100%);
       transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
-      z-index: 60;
+      z-index: 160; /* sobre toast (100), chip (60), idle-rain */
       overflow-y: auto;
+      will-change: transform;
     }
     .links a {
       padding: 14px 14px;
       font-size: 16px;
       border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .links a .lbl {
-      display: inline;
-      margin-left: 8px;
-    }
+    .links a .lbl { display: inline; }
+    .links a .icn { font-size: 22px; }
+
     .toggle-wrap {
       margin: 14px 0 0;
       padding-top: 14px;
@@ -200,7 +220,7 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.25s ease;
-      z-index: 55;
+      z-index: 150;
     }
 
     .nav.is-open .links { transform: translateX(0); }
@@ -215,16 +235,21 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
     .nav.is-open .burger span:nth-child(3) {
       transform: translateY(-6.5px) rotate(-45deg);
     }
-
-    /* Bloquea scroll del body cuando el menú está abierto */
-    body:has(.nav.is-open) { overflow: hidden; }
   }
 
-  /* ===== Mobile chico (≤ 360px): aún más compacto ===== */
-  @media (max-width: 360px) {
-    .brand { font-size: 10px; }
+  /* ===========================
+     Mobile chico (≤ 380px)
+     =========================== */
+  @media (max-width: 380px) {
+    .brand { font-size: 10px; max-width: 50vw; }
     .row { padding: 10px 0; min-height: 48px; }
   }
+</style>
+
+<style is:global>
+  /* Lock del scroll cuando el menú está abierto.
+     Lo aplicamos por clase desde JS (más confiable que :has()). */
+  body.nav-open { overflow: hidden; }
 </style>
 
 <script>
@@ -236,30 +261,26 @@ const current = Astro.url.pathname.replace(base, '').replace(/\/$/, '');
   function setOpen(open: boolean) {
     if (!nav || !toggle) return;
     nav.classList.toggle('is-open', open);
+    document.body.classList.toggle('nav-open', open);
     toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     toggle.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   }
 
   toggle?.addEventListener('click', () => {
-    const open = !nav?.classList.contains('is-open');
-    setOpen(open);
+    setOpen(!nav?.classList.contains('is-open'));
   });
 
   backdrop?.addEventListener('click', () => setOpen(false));
 
-  // Cerrar al clickear un link
   menu?.querySelectorAll('a').forEach((a) => {
     a.addEventListener('click', () => setOpen(false));
   });
 
-  // Cerrar al pulsar Escape
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && nav?.classList.contains('is-open')) {
-      setOpen(false);
-    }
+    if (e.key === 'Escape' && nav?.classList.contains('is-open')) setOpen(false);
   });
 
-  // Cerrar al redimensionar si pasamos a desktop
+  // Cierra si se redimensiona a desktop con el menú abierto
   let lastW = window.innerWidth;
   window.addEventListener('resize', () => {
     if (window.innerWidth > 760 && lastW <= 760) setOpen(false);
