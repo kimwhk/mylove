@@ -112,6 +112,22 @@ const base = import.meta.env.BASE_URL;
     <span id="toast-text">¡Secreto!</span>
   </div>
 
+  <!-- Botón ⌨️ (solo mobile): abre el teclado del teléfono para escribir el secreto "amor" -->
+  <button id="amor-keyboard" class="amor-keyboard" type="button" aria-label="Abrir teclado para escribir un secreto" title="¿un secreto? escribe…">⌨️</button>
+  <!-- Input invisible pero enfocable: el teclado virtual sólo aparece si hay un campo enfocado -->
+  <input
+    id="amor-input"
+    class="amor-input"
+    type="text"
+    inputmode="text"
+    autocomplete="off"
+    autocapitalize="none"
+    autocorrect="off"
+    spellcheck="false"
+    tabindex="-1"
+    aria-hidden="true"
+  />
+
   <!-- Modal de foto para el secreto del scroll -->
   <div id="photo-modal" class="photo-modal" hidden role="dialog" aria-modal="true" aria-labelledby="photo-caption">
     <div class="photo-card card">
@@ -376,6 +392,48 @@ const base = import.meta.env.BASE_URL;
     z-index: 60;
   }
 
+  /* Botón teclado: sólo en mobile (en desktop ya hay teclado físico) */
+  .amor-keyboard { display: none; }
+  /* Input invisible pero enfocable (NO usar display/visibility:hidden:
+     el teclado virtual no aparecería). font-size 16px evita el zoom de iOS. */
+  .amor-input {
+    position: fixed;
+    bottom: 14px;
+    left: 14px;
+    width: 46px;
+    height: 46px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    opacity: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: transparent;
+    font-size: 16px;
+    z-index: 59;
+  }
+  @media (max-width: 760px) {
+    .amor-keyboard {
+      position: fixed;
+      bottom: 14px;
+      left: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      font-size: 22px;
+      cursor: pointer;
+      z-index: 61;
+    }
+    .amor-keyboard:active { transform: scale(0.92); }
+  }
+
   .toast {
     position: fixed;
     left: 50%;
@@ -614,16 +672,42 @@ const base = import.meta.env.BASE_URL;
   });
 
   // 4) Escribir "amor"
+  const amorInput = document.getElementById('amor-input') as HTMLInputElement | null;
+  const amorKeyboard = document.getElementById('amor-keyboard');
+
+  function tryAmor(text: string): boolean {
+    if (text.toLowerCase().includes('amor')) {
+      discover('typeamor', '💛', 'Lo escribiste. Yo también, todo el día.');
+      return true;
+    }
+    return false;
+  }
+
+  // Desktop: teclado físico (sin input enfocado)
   let buf = '';
   document.addEventListener('keydown', (e) => {
     const tag = (e.target as HTMLElement)?.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return; // el input lo maneja su propio listener
     if (e.key && e.key.length === 1) {
       buf = (buf + e.key.toLowerCase()).slice(-8);
-      if (buf.includes('amor')) {
-        discover('typeamor', '💛', 'Lo escribiste. Yo también, todo el día.');
-        buf = '';
-      }
+      if (tryAmor(buf)) buf = '';
+    }
+  });
+
+  // Mobile: el botón ⌨️ enfoca el input invisible y abre el teclado del teléfono.
+  // El focus DEBE ocurrir sincrónicamente dentro del tap (lo exige iOS Safari).
+  amorKeyboard?.addEventListener('click', () => {
+    if (!amorInput) return;
+    amorInput.value = '';
+    amorInput.focus();
+  });
+  amorInput?.addEventListener('input', () => {
+    if (!amorInput) return;
+    if (tryAmor(amorInput.value)) {
+      amorInput.value = '';
+      amorInput.blur(); // cierra el teclado para que se vea el toast
+    } else if (amorInput.value.length > 16) {
+      amorInput.value = amorInput.value.slice(-8); // no dejar crecer indefinidamente
     }
   });
 
