@@ -572,7 +572,7 @@ const base = import.meta.env.BASE_URL;
   const bubbleWoonhak = document.getElementById('bubble-woonhak');
   woonhakWrap?.addEventListener('dblclick', () => {
     showBubble(bubbleWoonhak);
-    discover('dblclick-woonhak', '🩵', 'Woonhak te quiere mucho, Sungho');
+    discover('dblclick-woonhak', '🩵', 'Woonhak te quiere solo para él, Sungho');
     setTimeout(() => hideBubble(bubbleWoonhak), 2500);
   });
   let lastTap = 0;
@@ -581,7 +581,7 @@ const base = import.meta.env.BASE_URL;
     if (now - lastTap < 400) {
       e.preventDefault();
       showBubble(bubbleWoonhak);
-      discover('dblclick-woonhak', '🩵', 'Woonhak te quiere mucho, Sungho');
+      discover('dblclick-woonhak', '🩵', 'Woonhak te quiere solo para él, Sungho');
       setTimeout(() => hideBubble(bubbleWoonhak), 2500);
     }
     lastTap = now;
